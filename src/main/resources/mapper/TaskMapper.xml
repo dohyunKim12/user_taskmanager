@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bos.usertaskmanager.repository.TaskMapper">
+
+    <resultMap id="taskResultMap" type="Task">
+        <id property="id" column="id"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findByCompleted" resultMap="taskResultMap">
+        SELECT * FROM tasks WHERE completed = #{completed}
+    </select>
+
+    <insert id="insertTask" parameterType="Task">
+        INSERT INTO tasks(description, completed, created_at)
+        VALUES (#{description}, #{completed}, #{createdAt})
+    </insert>
+
+    <update id="updateTask" parameterType="Task">
+        UPDATE tasks
+        SET description = #{description}, completed = #{completed}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTask" parameterType="long">
+        DELETE FROM tasks WHERE id = #{id}
+    </delete>
+
+</mapper>
