@@ -1,17 +1,13 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/your_database
-    username: your_username
-    password: your_password
-    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: embedded
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/utm
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
 
   mybatis:
     mapper-locations: classpath:mapper/*.xml

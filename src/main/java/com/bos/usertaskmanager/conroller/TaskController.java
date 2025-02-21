@@ -1,7 +1,6 @@
 package com.bos.usertaskmanager.conroller;
 
-import com.bos.usertaskmanager.model.Task;
-import com.bos.usertaskmanager.service.TaskService;
+import com.bos.usertaskmanager.service.UserTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final TaskService taskService;
+    private final UserTaskService taskService;
 
     @GetMapping
     public List<Task> getAllTasks() {
