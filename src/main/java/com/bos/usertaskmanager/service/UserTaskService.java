@@ -1,6 +1,5 @@
 package com.bos.usertaskmanager.service;
 
-import com.bos.usertaskmanager.model.Task;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetails;
 import com.bos.usertaskmanager.repository.UserTaskDetailsMapper;
@@ -16,8 +15,8 @@ public class UserTaskService {
     private final UserTaskMapper userTaskMapper;
     private final UserTaskDetailsMapper userTaskDetailsMapper;
 
-    public List<Task> getAllTasks() {
-        return taskMapper.findAll();
+    public List<UserTask> getAllTasks() {
+        return userTaskMapper.findAll();
     }
 
     public String submitTask(UserTask userTask, UserTaskDetails userTaskDetails) {

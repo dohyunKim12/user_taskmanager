@@ -13,9 +13,13 @@ public class UserTask {
     private String userTaskId;  // USR-000001
     private Integer jobId;
     private String shortCmd;
-    private Integer userId;
     private LocalDateTime submittedAt;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
-    private String status; // pending, running, completed, cancelled
+    private Status status;
+    public enum Status {
+        PENDING, RUNNING, COMPLETED, CANCELLED
+    }
+    private UserTaskDetails userTaskDetails;
+    private User user;
 }
