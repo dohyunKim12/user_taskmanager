@@ -1,7 +1,6 @@
 package com.bos.usertaskmanager.repository;
 
 import com.bos.usertaskmanager.model.UserTask;
-import com.bos.usertaskmanager.model.UserTaskDetails;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -55,4 +54,23 @@ public interface UserTaskMapper {
     @Delete("DELETE FROM user_task")
     void deleteAllUserTasks();
 
+    // Delete task by username
+    @Delete("""
+        DELETE FROM user_task 
+        WHERE user_id = (SELECT user_id FROM users WHERE username = #{username})
+    """)
+    void deleteUserTaskByUsername(String username);
+
+    // UPDATE
+    @Update("UPDATE user_task SET status = #{status} WHERE user_task_id = #{user_task_id}")
+    void updateUserTaskStatus(@Param("status") String status, @Param("user_task_id") String userTaskId);
+
+    @Update("UPDATE user_task SET started_at = #{startedAt} WHERE user_task_id = #{user_task_id}")
+    void updateUserTaskStartedAt(@Param("startedAt") String startedAt, @Param("user_task_id") String userTaskId);
+
+    @Update("UPDATE user_task SET ended_at = #{endedAt} WHERE user_task_id = #{user_task_id}")
+    void updateUserTaskEndedAt(@Param("endedAt") String endedAt, @Param("user_task_id") String userTaskId);
+
+    @Update("UPDATE user_task SET job_id = #{jobId} WHERE user_task_id = #{user_task_id}")
+    void updateUserTaskJobId(@Param("jobId") String jobId, @Param("user_task_id") String userTaskId);
 }
