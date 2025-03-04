@@ -1,4 +1,8 @@
 spring:
+  jmx:
+    enabled: true
+    default-domain: org.springframework.boot
+    unique-names: true
   sql:
     init:
       mode: embedded
@@ -15,6 +19,39 @@ spring:
 
   application:
     name: UserTaskManager
+    admin:
+      enabled: true
 
 server:
   port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: false
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+    com.bos.usertaskmanager: DEBUG
+    graphql: DEBUG
+
+graphql:
+  servlet:
+    enabled: true
+    mapping: /graphql
+  jmx:
+    enabled: false
+  playground:
+    enabled: true
+    endpoint: /graphql
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "*"
+    web:
+      exposure:
+        include: "*"
+  server:
+    port: 8081

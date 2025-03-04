@@ -35,8 +35,8 @@ dependencies {
     testImplementation 'org.springframework.kafka:spring-kafka-test:3.3.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:11.0.0'
+    implementation 'com.graphql-java-kickstart:playground-spring-boot-starter:11.0.0'
+    implementation 'com.graphql-java-kickstart:graphql-java-tools:11.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }

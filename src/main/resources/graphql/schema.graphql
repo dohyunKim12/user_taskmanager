@@ -1,0 +1,99 @@
+# Type definitions
+
+type User {
+    userId: ID!
+    teamId: String
+    username: String!
+    email: String!
+}
+
+type Team {
+    teamId: ID!
+    teamName: String!
+}
+
+type License {
+    licenseId: ID!
+    licenseType: String!
+    maxVal: Int!
+    currentVal: Int!
+}
+
+type TeamLicense {
+    teamLicenseId: ID!
+    teamId: String!
+    licenseId: String!
+}
+
+type UserTask {
+    userTaskId: ID!
+    jobId: Int
+    shortCmd: String
+    userId: String!
+    submittedAt: String!
+    startedAt: String
+    endedAt: String
+    status: String!
+    detail: UserTaskDetail
+}
+
+input UserTaskDetailInput {
+    command: String!
+    licenseType: String!
+    licenseCount: Int!
+    directory: String!
+    uuid: String!
+    timelimit: Float!
+    requestedCpu: Float!
+}
+
+type UserTaskDetail {
+    userTaskId: ID!
+    command: String!
+    licenseType: String!
+    licenseCount: Int!
+    directory: String!
+    uuid: String!
+    timelimit: Float!
+    requestedCpu: Float!
+}
+
+# Query types
+
+type Query {
+    getUser(userId: ID!): User
+    getAllUsers: [User]
+    getTeam(teamId: ID!): Team
+    getAllTeams: [Team]
+    getLicense(licenseId: ID!): License
+    getAllLicenses: [License]
+    getUserTask(userTaskId: ID!): UserTask
+    getAllUserTasks: [UserTask]
+}
+
+# Mutation types
+
+type Mutation {
+    createUser(teamId: String, username: String!, email: String!): User
+    updateUser(userId: ID!, teamId: String, username: String, email: String): User
+    deleteUser(userId: ID!): Boolean
+
+    createTeam(teamName: String!): Team
+    updateTeam(teamId: ID!, teamName: String): Team
+    deleteTeam(teamId: ID!): Boolean
+
+    createLicense(licenseType: String!, maxVal: Int!, currentVal: Int!): License
+    updateLicense(licenseId: ID!, licenseType: String, maxVal: Int, currentVal: Int): License
+    deleteLicense(licenseId: ID!): Boolean
+
+    assignLicenseToTeam(teamId: ID!, licenseId: ID!): TeamLicense
+    removeLicenseFromTeam(teamId: ID!, licenseId: ID!): Boolean
+
+    createUserTask(jobId: Int, shortCmd: String, userId: ID!, submittedAt: String, startedAt: String, endedAt: String, status: String!, detail: UserTaskDetailInput!): UserTask
+    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
+    deleteUserTask(userTaskId: ID!): Boolean
+
+    createUserTaskDetail(userTaskId: ID!, command: String!, licenseType: String!, licenseCount: Int!, directory: String!, uuid: String!, timelimit: Float!, requestedCpu: Float!): UserTaskDetail
+    updateUserTaskDetail(userTaskId: ID!, command: String, licenseType: String, licenseCount: Int, directory: String, uuid: String, timelimit: Float, requestedCpu: Float): UserTaskDetail
+    deleteUserTaskDetail(userTaskId: ID!): Boolean
+}

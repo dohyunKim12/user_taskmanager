@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserTaskDetails {
+public class UserTaskDetail {
     private String userTaskId;
     private String command;
     private String licenseType;
