@@ -13,8 +13,12 @@ import java.util.List;
 @Component
 public class UserTaskResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
 
-    @Autowired
-    private UserTaskService userTaskService;
+//    @Autowired
+//    private UserTaskService userTaskService;
+    private final UserTaskService userTaskService;
+    public UserTaskResolver(UserTaskService userTaskService) {
+        this.userTaskService = userTaskService;
+    }
 
     public UserTask getUserTask(String userTaskId) {
         return userTaskService.getUserTaskById(userTaskId);

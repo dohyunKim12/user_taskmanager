@@ -1,8 +1,6 @@
 spring:
-  jmx:
-    enabled: true
-    default-domain: org.springframework.boot
-    unique-names: true
+  main:
+    web-application-type: servlet
   sql:
     init:
       mode: embedded
@@ -17,16 +15,8 @@ spring:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.bos.usertaskmanager.model
 
-  application:
-    name: UserTaskManager
-    admin:
-      enabled: true
-
 server:
   port: 8080
-  tomcat:
-    mbeanregistry:
-      enabled: false
 
 logging:
   level:
@@ -36,22 +26,20 @@ logging:
     graphql: DEBUG
 
 graphql:
+  schema:
+    locations: classpath:graphql/schema.graphqls
   servlet:
     enabled: true
     mapping: /graphql
-  jmx:
-    enabled: false
   playground:
     enabled: true
-    endpoint: /graphql
+    endpoint: /playground
+  graphiql:
+    enabled: true
+    endpoint: /graphiql
 
 management:
   endpoints:
-    jmx:
-      exposure:
-        include: "*"
     web:
       exposure:
         include: "*"
-  server:
-    port: 8081

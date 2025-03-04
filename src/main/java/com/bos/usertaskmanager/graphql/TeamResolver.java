@@ -12,8 +12,12 @@ import java.util.List;
 @Component
 public class TeamResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
 
-    @Autowired
-    private TeamService teamService;
+//    @Autowired
+//    private TeamService teamService;
+    private final TeamService teamService;
+    public TeamResolver(TeamService teamService) {
+        this.teamService = teamService;
+    }
 
     public Team getTeam(String teamId) {
         return teamService.getTeamById(teamId);

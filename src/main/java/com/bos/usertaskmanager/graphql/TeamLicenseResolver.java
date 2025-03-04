@@ -9,8 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TeamLicenseResolver implements GraphQLMutationResolver {
 
-    @Autowired
-    private TeamLicenseService teamLicenseService;
+//    @Autowired
+//    private TeamLicenseService teamLicenseService;
+    private final TeamLicenseService teamLicenseService;
+    public TeamLicenseResolver(TeamLicenseService teamLicenseService) {
+        this.teamLicenseService = teamLicenseService;
+    }
 
     public TeamLicense assignLicenseToTeam(String teamId, String licenseId) {
         return teamLicenseService.assignLicenseToTeam(teamId, licenseId);

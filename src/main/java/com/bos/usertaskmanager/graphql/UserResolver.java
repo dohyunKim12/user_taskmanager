@@ -12,8 +12,12 @@ import java.util.List;
 @Component
 public class UserResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
 
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
+    private final UserService userService;
+    public UserResolver(UserService userService) {
+        this.userService = userService;
+    }
 
     // Query to fetch a single user by ID
     public User getUser(String userId) {

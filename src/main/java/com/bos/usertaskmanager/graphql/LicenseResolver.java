@@ -12,8 +12,12 @@ import java.util.List;
 @Component
 public class LicenseResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
 
-    @Autowired
-    private LicenseService licenseService;
+//    @Autowired
+//    private LicenseService licenseService;
+    private final LicenseService licenseService;
+    public LicenseResolver(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
 
     public License getLicense(String licenseId) {
         return licenseService.getLicenseById(licenseId);
