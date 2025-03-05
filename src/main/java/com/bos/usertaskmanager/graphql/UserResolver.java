@@ -2,29 +2,32 @@ package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.service.UserService;
-import graphql.kickstart.tools.GraphQLQueryResolver;
-import graphql.kickstart.tools.GraphQLMutationResolver;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Component
-public class UserResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+@Controller
+public class UserResolver {
 
-//    @Autowired
-//    private UserService userService;
-    private final UserService userService;
-    public UserResolver(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
+//    private final UserService userService;
+//    public UserResolver(UserService userService) {
+//        this.userService = userService;
+//    }
 
     // Query to fetch a single user by ID
-    public User getUser(String userId) {
+    @QueryMapping
+    public User getUser(@Argument String userId) {
         return userService.getUserById(userId);
     }
 
     // Query to fetch all users
+    @QueryMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }

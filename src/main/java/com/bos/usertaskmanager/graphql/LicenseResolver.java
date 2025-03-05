@@ -2,15 +2,12 @@ package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.model.License;
 import com.bos.usertaskmanager.service.LicenseService;
-import graphql.kickstart.tools.GraphQLQueryResolver;
-import graphql.kickstart.tools.GraphQLMutationResolver;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Component
-public class LicenseResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+@Controller
+public class LicenseResolver {
 
 //    @Autowired
 //    private LicenseService licenseService;

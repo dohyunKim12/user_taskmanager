@@ -1,9 +1,13 @@
 spring:
-  main:
-    web-application-type: servlet
+  application:
+    name: usertaskmanager
   sql:
     init:
       mode: embedded
+  graphql:
+    path: /graphql
+    graphiql:
+      enabled: true
 
   datasource:
     url: jdbc:postgresql://localhost:5432/utm
@@ -11,35 +15,25 @@ spring:
     password: admin
     driver-class-name: org.postgresql.Driver
 
-  mybatis:
-    mapper-locations: classpath:mapper/*.xml
-    type-aliases-package: com.bos.usertaskmanager.model
-
 server:
   port: 8080
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.springframework: DEBUG
     com.bos.usertaskmanager: DEBUG
     graphql: DEBUG
-
-graphql:
-  schema:
-    locations: classpath:graphql/schema.graphqls
-  servlet:
-    enabled: true
-    mapping: /graphql
-  playground:
-    enabled: true
-    endpoint: /playground
-  graphiql:
-    enabled: true
-    endpoint: /graphiql
+    org.mybatis.spring: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bos.usertaskmanager.model
+  configuration:
+    map-underscore-to-camel-case: true

@@ -8,6 +8,10 @@ import java.util.List;
 @Mapper
 public interface TeamMapper {
     @Select("SELECT * FROM team")
+    @Results({
+            @Result(property = "teamId", column = "team_id"),
+            @Result(property = "teamName", column = "team_name")
+    })
     List<Team> getAllTeams();
 
     @Select("SELECT * FROM team where team_id = #{id}")

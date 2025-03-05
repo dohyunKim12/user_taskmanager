@@ -2,12 +2,12 @@ package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.model.TeamLicense;
 import com.bos.usertaskmanager.service.TeamLicenseService;
-import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
-public class TeamLicenseResolver implements GraphQLMutationResolver {
+@Controller
+public class TeamLicenseResolver {
 
 //    @Autowired
 //    private TeamLicenseService teamLicenseService;

@@ -3,15 +3,14 @@ package com.bos.usertaskmanager.graphql;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetail;
 import com.bos.usertaskmanager.service.UserTaskService;
-import graphql.kickstart.tools.GraphQLQueryResolver;
-import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Component
-public class UserTaskResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+@Controller
+public class UserTaskResolver {
 
 //    @Autowired
 //    private UserTaskService userTaskService;
