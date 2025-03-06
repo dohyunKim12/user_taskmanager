@@ -9,9 +9,10 @@ import java.util.List;
 
 @Service
 public class LicenseService {
-
-    @Autowired
-    private LicenseMapper licenseMapper;
+    private final LicenseMapper licenseMapper;
+    public LicenseService(LicenseMapper licenseMapper) {
+        this.licenseMapper = licenseMapper;
+    }
 
     public License getLicenseById(String licenseId) {
         return licenseMapper.getLicenseById(licenseId);
@@ -33,5 +34,9 @@ public class LicenseService {
 
     public boolean deleteLicense(String licenseId) {
         return licenseMapper.deleteLicenseById(licenseId) > 0;
+    }
+
+    public boolean deleteAllLicenses() {
+        return licenseMapper.deleteAllLicenses() > 0;
     }
 }

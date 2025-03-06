@@ -2,29 +2,32 @@ package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.model.License;
 import com.bos.usertaskmanager.service.LicenseService;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 @Controller
 public class LicenseResolver {
-
-//    @Autowired
-//    private LicenseService licenseService;
     private final LicenseService licenseService;
     public LicenseResolver(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
 
-    public License getLicense(String licenseId) {
+    @QueryMapping
+    public License getLicense(@Argument String licenseId) {
         return licenseService.getLicenseById(licenseId);
     }
 
+    @QueryMapping
     public List<License> getAllLicenses() {
         return licenseService.getAllLicenses();
     }
 
-    public License createLicense(String licenseType, int maxVal, int currentVal) {
+    @MutationMapping
+    public License createLicense(@Argument String licenseType, @Argument int maxVal, @Argument int currentVal) {
         License license = new License();
         license.setLicenseType(licenseType);
         license.setMaxVal(maxVal);
@@ -32,7 +35,8 @@ public class LicenseResolver {
         return licenseService.createLicense(license);
     }
 
-    public License updateLicense(String licenseId, String licenseType, int maxVal, int currentVal) {
+    @MutationMapping
+    public License updateLicense(@Argument String licenseId, @Argument String licenseType, @Argument int maxVal, @Argument int currentVal) {
         License license = new License();
         license.setLicenseId(licenseId);
         license.setLicenseType(licenseType);
@@ -41,7 +45,13 @@ public class LicenseResolver {
         return licenseService.updateLicense(license);
     }
 
-    public Boolean deleteLicense(String licenseId) {
+    @MutationMapping
+    public Boolean deleteLicenseById(@Argument String licenseId) {
         return licenseService.deleteLicense(licenseId);
+    }
+
+    @MutationMapping
+    public Boolean deleteAllLicenses() {
+        return licenseService.deleteAllLicenses();
     }
 }

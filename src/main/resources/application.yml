@@ -6,8 +6,13 @@ spring:
       mode: embedded
   graphql:
     path: /graphql
+    schema:
+      default-schema-location: classpath:graphql/schema.graphqls
     graphiql:
       enabled: true
+    execution:
+      introspection-enabled: true
+
 
   datasource:
     url: jdbc:postgresql://localhost:5432/utm

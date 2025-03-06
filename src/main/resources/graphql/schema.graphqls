@@ -34,7 +34,7 @@ type UserTask {
     startedAt: String
     endedAt: String
     status: String!
-    detail: UserTaskDetail
+    userTaskDetail: UserTaskDetail!
 }
 
 input UserTaskDetailInput {
@@ -76,7 +76,8 @@ type Query {
 type Mutation {
     createUser(teamId: String, username: String!, email: String!): User
     updateUser(userId: ID!, teamId: String, username: String, email: String): User
-    deleteUser(userId: ID!): Boolean
+    deleteUserById(userId: ID!): Boolean
+    deleteUserByUsername(username: String!): Boolean
 
     createTeam(teamName: String!): Team
     updateTeam(teamId: ID!, teamName: String): Team
@@ -84,16 +85,19 @@ type Mutation {
 
     createLicense(licenseType: String!, maxVal: Int!, currentVal: Int!): License
     updateLicense(licenseId: ID!, licenseType: String, maxVal: Int, currentVal: Int): License
-    deleteLicense(licenseId: ID!): Boolean
+    deleteLicenseById(licenseId: ID!): Boolean
+    deleteAllLicenses: Boolean
 
     assignLicenseToTeam(teamId: ID!, licenseId: ID!): TeamLicense
     removeLicenseFromTeam(teamId: ID!, licenseId: ID!): Boolean
 
-    createUserTask(jobId: Int, shortCmd: String, userId: ID!, submittedAt: String, startedAt: String, endedAt: String, status: String!, detail: UserTaskDetailInput!): UserTask
-    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
+    # Currently add userId in this field, but it should be removed in the future(after adding authentication)
+    # User info will be retrieved from the Principal object
+    createUserTask(userId: ID!, detail: UserTaskDetailInput!): UserTask
     deleteUserTask(userTaskId: ID!): Boolean
+#    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
 
-    createUserTaskDetail(userTaskId: ID!, command: String!, licenseType: String!, licenseCount: Int!, directory: String!, uuid: String!, timelimit: Float!, requestedCpu: Float!): UserTaskDetail
-    updateUserTaskDetail(userTaskId: ID!, command: String, licenseType: String, licenseCount: Int, directory: String, uuid: String, timelimit: Float, requestedCpu: Float): UserTaskDetail
-    deleteUserTaskDetail(userTaskId: ID!): Boolean
+#    createUserTaskDetail(userTaskId: ID!, command: String!, licenseType: String!, licenseCount: Int!, directory: String!, uuid: String!, timelimit: Float!, requestedCpu: Float!): UserTaskDetail
+#    updateUserTaskDetail(userTaskId: ID!, command: String, licenseType: String, licenseCount: Int, directory: String, uuid: String, timelimit: Float, requestedCpu: Float): UserTaskDetail
+#    deleteUserTaskDetail(userTaskId: ID!): Boolean
 }

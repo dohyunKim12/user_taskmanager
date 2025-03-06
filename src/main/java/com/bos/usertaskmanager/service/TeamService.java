@@ -9,9 +9,10 @@ import java.util.List;
 
 @Service
 public class TeamService {
-
-    @Autowired
-    private TeamMapper teamMapper;
+    private final TeamMapper teamMapper;
+    public TeamService(TeamMapper teamMapper) {
+        this.teamMapper = teamMapper;
+    }
 
     public Team getTeamById(String teamId) {
         return teamMapper.getTeamById(teamId);

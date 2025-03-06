@@ -3,38 +3,41 @@ package com.bos.usertaskmanager.graphql;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetail;
 import com.bos.usertaskmanager.service.UserTaskService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 @Controller
 public class UserTaskResolver {
-
-//    @Autowired
-//    private UserTaskService userTaskService;
     private final UserTaskService userTaskService;
     public UserTaskResolver(UserTaskService userTaskService) {
         this.userTaskService = userTaskService;
     }
 
-    public UserTask getUserTask(String userTaskId) {
+    @QueryMapping
+    public UserTask getUserTask(@Argument String userTaskId) {
         return userTaskService.getUserTaskById(userTaskId);
     }
 
+    @QueryMapping
     public List<UserTask> getAllUserTasks() {
         return userTaskService.getAllUserTasks();
     }
 
-    public UserTask createUserTask(String userId, UserTaskDetail detail) {
+
+    @MutationMapping
+    public UserTask createUserTask(@Argument String userId, @Argument UserTaskDetail detail) {
         UserTask userTask = new UserTask();
         userTask.setUserId(userId);
         userTask.setUserTaskDetail(detail);
         return userTaskService.createUserTask(userTask);
     }
 
-    public Boolean deleteUserTask(String userTaskId) {
+    @MutationMapping
+    public Boolean deleteUserTask(@Argument String userTaskId) {
         return userTaskService.deleteUserTask(userTaskId);
     }
 }

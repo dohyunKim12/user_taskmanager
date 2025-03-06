@@ -30,5 +30,5 @@ public interface LicenseMapper {
     int deleteLicenseById(String id);
 
     @Delete("DELETE FROM license")
-    void deleteAllLicenses();
+    int deleteAllLicenses();
 }
