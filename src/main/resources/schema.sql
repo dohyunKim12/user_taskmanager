@@ -6,7 +6,7 @@ CREATE SEQUENCE team_license_seq START 1;
 CREATE SEQUENCE user_task_seq START 1;
 
 -- User table
-CREATE TABLE "user" (
+CREATE TABLE users (
                         user_id VARCHAR(10) PRIMARY KEY DEFAULT 'USR-' || LPAD(nextval('user_seq')::TEXT, 6, '0'),
                         team_id VARCHAR(10),
                         username VARCHAR(255) UNIQUE,
@@ -47,7 +47,7 @@ CREATE TABLE user_task (
                            started_at TIMESTAMP,
                            ended_at TIMESTAMP,
                            status VARCHAR(255) CHECK (status IN ('pending', 'running', 'completed', 'cancelled', 'failed', 'preempted')),
-                           FOREIGN KEY (user_id) REFERENCES "user"(user_id) ON DELETE CASCADE
+                           FOREIGN KEY (user_id) REFERENCES "users"(user_id) ON DELETE CASCADE
 );
 
 -- User Task Details table
@@ -64,4 +64,4 @@ CREATE TABLE user_task_detail (
 );
 
 -- Foreign key constraints for Users and Teams
-ALTER TABLE "user" ADD FOREIGN KEY (team_id) REFERENCES team(team_id) ON DELETE SET NULL;
+ALTER TABLE users ADD FOREIGN KEY (team_id) REFERENCES team(team_id) ON DELETE SET NULL;

@@ -2,13 +2,18 @@ package com.bos.usertaskmanager.service;
 
 import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.repository.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserService {
+    Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private UserMapper userMapper;
 
@@ -20,9 +25,16 @@ public class UserService {
         return userMapper.getAllUsers();
     }
 
+//    public User createUser(User user) {
+//        logger.info("Creating user: " + user);
+//        userMapper.insertUser(user);
+//        logger.info("User created: " + user);
+//        return user;  // Return the user with the ID populated after insertion
+//    }
+//
     public User createUser(User user) {
         userMapper.insertUser(user);
-        return user;  // Return the user with the ID populated after insertion
+        return userMapper.getUserByUsername(user.getUsername());
     }
 
     public User updateUser(User user) {
