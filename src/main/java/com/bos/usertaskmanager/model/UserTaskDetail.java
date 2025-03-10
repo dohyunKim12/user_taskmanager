@@ -16,4 +16,5 @@ public class UserTaskDetail {
     private String uuid;
     private Float timelimit;
     private Float requestedCpu;
+    private Float requestedMem;
 }

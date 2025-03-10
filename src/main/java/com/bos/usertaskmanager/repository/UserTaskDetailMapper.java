@@ -7,10 +7,10 @@ import org.apache.ibatis.annotations.*;
 public interface UserTaskDetailMapper {
     @Insert("""
         INSERT INTO user_task_detail 
-        (user_task_id, command, license_type, license_count, directory, uuid, timelimit, requested_cpu) 
+        (user_task_id, command, license_type, license_count, directory, uuid, timelimit, requested_cpu, requested_mem) 
         VALUES 
         (#{userTaskId}, #{command}, #{licenseType}, #{licenseCount}, 
-         #{directory}, #{uuid}, #{timelimit}, #{requestedCpu})
+         #{directory}, #{uuid}, #{timelimit}, #{requestedCpu}, #{requestedMem})
     """)
     void insertUserTaskDetail(UserTaskDetail userTaskDetail);
 

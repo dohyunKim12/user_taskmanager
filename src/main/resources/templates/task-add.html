@@ -74,7 +74,8 @@
             directory: document.getElementById('partition').value,
             uuid: crypto.randomUUID(),
             timelimit: parseFloat(document.getElementById('timeLimit').value) * parseInt(document.getElementById('timeUnit').value),
-            requestedCpu: parseFloat(document.getElementById('cpu').value)
+            requestedCpu: parseFloat(document.getElementById('cpu').value),
+            requestedMem: parseFloat(document.getElementById('cpu').value)
         };
 
         const mutation = `

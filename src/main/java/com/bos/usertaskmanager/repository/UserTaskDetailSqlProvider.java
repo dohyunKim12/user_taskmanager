@@ -28,6 +28,9 @@ public class UserTaskDetailSqlProvider {
             if (details.getRequestedCpu() != null) {
                 SET("requested_cpu = #{requestedCpu}");
             }
+            if (details.getRequestedMem() != null) {
+                SET("requested_mem = #{requestedMem}");
+            }
             WHERE("user_task_id = #{userTaskId}");
         }}.toString();
     }

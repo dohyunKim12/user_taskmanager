@@ -60,6 +60,7 @@ CREATE TABLE user_task_detail (
                                   uuid VARCHAR NOT NULL UNIQUE,
                                   timelimit FLOAT CHECK (timelimit > 0),
                                   requested_cpu FLOAT CHECK (requested_cpu > 0),
+                                  requested_mem FLOAT CHECK (requested_mem > 0),
                                   FOREIGN KEY (user_task_id) REFERENCES user_task(user_task_id) ON DELETE CASCADE
 );
 

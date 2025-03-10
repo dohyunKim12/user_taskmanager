@@ -37,6 +37,12 @@ type UserTask {
     userTaskDetail: UserTaskDetail!
 }
 
+type AddBatchOutput {
+    success: [String]
+    failed: [String]
+    permissionDenied: [String]
+}
+
 input UserTaskDetailInput {
     command: String!
     licenseType: String!
@@ -45,6 +51,7 @@ input UserTaskDetailInput {
     uuid: String!
     timelimit: Float!
     requestedCpu: Float!
+    requestedMem: Float!
 }
 
 type UserTaskDetail {
@@ -56,6 +63,7 @@ type UserTaskDetail {
     uuid: String!
     timelimit: Float!
     requestedCpu: Float!
+    requestedMem: Float!
 }
 
 # Query types
@@ -95,10 +103,7 @@ type Mutation {
     # Currently add userId in this field, but it should be removed in the future(after adding authentication)
     # User info will be retrieved from the Principal object
     createUserTask(userId: ID!, detail: UserTaskDetailInput!): UserTask
+    addBatch(userId: ID!, detail: [UserTaskDetailInput]!): AddBatchOutput
     deleteUserTask(userTaskId: ID!): Boolean
 #    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
-
-#    createUserTaskDetail(userTaskId: ID!, command: String!, licenseType: String!, licenseCount: Int!, directory: String!, uuid: String!, timelimit: Float!, requestedCpu: Float!): UserTaskDetail
-#    updateUserTaskDetail(userTaskId: ID!, command: String, licenseType: String, licenseCount: Int, directory: String, uuid: String, timelimit: Float, requestedCpu: Float): UserTaskDetail
-#    deleteUserTaskDetail(userTaskId: ID!): Boolean
 }

@@ -10,4 +10,9 @@ public class ViewController {
     public String showAddTaskForm() {
         return "task-add";
     }
+
+    @GetMapping("/task/add/batch")
+    public String showAddTaskBatchForm() {
+        return "task-add-batch";
+    }
 }
