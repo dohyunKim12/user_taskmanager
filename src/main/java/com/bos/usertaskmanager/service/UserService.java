@@ -50,4 +50,8 @@ public class UserService {
     public boolean deleteUserById(String userId) {
         return userMapper.deleteUserById(userId) > 0;
     }
+
+    public User getUserByUsername(String username) {
+        return userMapper.getUserByUsername(username);
+    }
 }

@@ -5,10 +5,12 @@ import com.bos.usertaskmanager.repository.UserTaskDetailMapper;
 import com.bos.usertaskmanager.repository.UserTaskMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserTaskService {
     @Autowired
     private UserTaskMapper userTaskMapper;
@@ -24,9 +26,11 @@ public class UserTaskService {
     }
 
     public UserTask createUserTask(UserTask userTask) {
-        String userTaskId = userTaskMapper.insertUserTask(userTask);
+        String userTaskId = userTaskMapper.getNextTaskId();
+        userTask.setUserTaskId(userTaskId);
+        userTaskMapper.insertUserTask(userTask);
         userTask.getUserTaskDetail().setUserTaskId(userTaskId);
-        userTaskDetailMapper.insertUserTaskDetails(userTask.getUserTaskDetail());
+        userTaskDetailMapper.insertUserTaskDetail(userTask.getUserTaskDetail());
         return userTask;
     }
 

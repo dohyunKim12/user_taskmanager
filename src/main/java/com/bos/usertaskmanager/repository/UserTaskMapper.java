@@ -26,7 +26,7 @@ public interface UserTaskMapper {
 
     @Select("""
         SELECT ut.* FROM user_task ut
-        JOIN user_task_details utd ON ut.user_task_id = utd.user_task_id
+        JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
         WHERE utd.license_type = #{licenseType}
     """)
     List<UserTask> getUserTaskListByLicenseType(@Param("licenseType") String licenseType);
@@ -41,12 +41,10 @@ public interface UserTaskMapper {
 
     // INSERT
     @Insert("""
-        INSERT INTO user_task (user_id, submitted_at, status) 
-        VALUES (#{userTask.userId}, #{userTask.submittedAt}, 'pending') 
-        RETURNING user_task_id
+        INSERT INTO user_task (user_task_id, user_id, submitted_at, status) 
+        VALUES (#{userTask.userTaskId}, #{userTask.userId}, #{userTask.submittedAt}, 'pending') 
     """)
-    @Options(useGeneratedKeys = true, keyProperty = "userTask.userTaskId")
-    String insertUserTask(@Param("userTask") UserTask userTask);
+    void insertUserTask(@Param("userTask") UserTask userTask);
 
     // UPDATE
     @Update("""
@@ -72,4 +70,7 @@ public interface UserTaskMapper {
 
     @Delete("DELETE FROM user_task")
     void deleteAllUserTasks();
+
+    @Select("SELECT 'UTK-' || LPAD(nextval('user_task_seq')::text, 6, '0')")
+    String getNextTaskId();
 }

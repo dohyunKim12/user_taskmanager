@@ -62,6 +62,7 @@ type UserTaskDetail {
 
 type Query {
     getUser(userId: ID!): User
+    getUserByUsername(username: String!): User
     getAllUsers: [User]
     getTeam(teamId: ID!): Team
     getAllTeams: [Team]

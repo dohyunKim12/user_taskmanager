@@ -26,6 +26,11 @@ public class UserResolver {
         return userService.getAllUsers();
     }
 
+    @QueryMapping
+    public User getUserByUsername(@Argument String username) {
+        return userService.getUserByUsername(username);
+    }
+
     @MutationMapping
     public User createUser(@Argument String teamId,@Argument String username,@Argument String email) {
         User user = new User();

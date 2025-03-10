@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Task - User Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-60 bg-gray-700"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+        <nav class="bg-black text-white py-4 px-8 font-bold">User Task Manager</nav>
+
+        <div class="max-w-3xl mx-auto w-full py-12 px-8">
+            <h2 class="text-4xl font-bold mb-8">Add Task</h2>
+
+            <div class="space-y-4">
+                <input id="username" class="border-b w-full py-2 outline-none" placeholder="Username"/>
+                <input id="cpu" type="number" class="border-b w-full py-2 outline-none" placeholder="CPU"/>
+                <input id="memory" class="border-b w-full py-2 outline-none" placeholder="Memory (e.g., 8Gi)"/>
+                <input id="licenseType" class="border-b w-full py-2 outline-none" placeholder="License Type"/>
+                <input id="licenseCount" type="number" class="border-b w-full py-2 outline-none" placeholder="License Count"/>
+                <input id="partition" class="border-b w-full py-2 outline-none" placeholder="Partition"/>
+                <div class="flex items-center space-x-4">
+                    <input id="timeLimit" type="number" class="border-b flex-1 py-2 outline-none" placeholder="Time Limit"/>
+                    <select id="timeUnit" class="border rounded px-2 py-2 outline-none">
+                        <option value="1">Minute</option>
+                        <option value="60">Hour</option>
+                        <option value="1440">Day</option>
+                    </select>
+                </div>
+                <input id="command" class="border-b w-full py-2 outline-none" placeholder="Command"/>
+            </div>
+
+            <div class="mt-12 flex justify-end space-x-4">
+                <button onclick="history.back()" class="px-8 py-2 border rounded bg-gray-50 hover:bg-gray-100">cancel</button>
+                <button onclick="submitTask()" class="px-8 py-2 bg-black text-white rounded hover:bg-gray-800">add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function submitTask() {
+        const graphqlEndpoint = '/graphql';
+        const username = document.getElementById('username').value;
+
+        const userQuery = `
+            query getUserByUsername($username: String!) {
+                getUserByUsername(username: $username) {
+                    userId
+                }
+            }
+        `;
+        const userRes = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query: userQuery, variables: {username}})
+        });
+        const userData = await userRes.json();
+        if (userData.errors || !userData.data.getUserByUsername) {
+            alert('User not found!');
+            return;
+        }
+        const userId = userData.data.getUserByUsername.userId;
+
+        const detail = {
+            command: document.getElementById('command').value,
+            licenseType: document.getElementById('licenseType').value,
+            licenseCount: parseInt(document.getElementById('licenseCount').value),
+            directory: document.getElementById('partition').value,
+            uuid: crypto.randomUUID(),
+            timelimit: parseFloat(document.getElementById('timeLimit').value) * parseInt(document.getElementById('timeUnit').value),
+            requestedCpu: parseFloat(document.getElementById('cpu').value)
+        };
+
+        const mutation = `
+            mutation createUserTask($userId: ID!, $detail: UserTaskDetailInput!) {
+                createUserTask(userId: $userId, detail: $detail) {
+                    userTaskId
+                    status
+                }
+            }
+        `;
+
+        const taskRes = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query: mutation, variables: {userId: userData.data.getUserByUsername.userId, detail}})
+        });
+        const taskData = await taskRes.json();
+
+        if(taskData.errors) {
+            alert('Error: ' + taskData.errors[0].message);
+        } else {
+            alert('Task Created: ' + taskData.data.createUserTask.userTaskId);
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
