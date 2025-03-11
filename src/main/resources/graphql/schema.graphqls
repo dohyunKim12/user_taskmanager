@@ -69,6 +69,17 @@ type UserTaskDetail {
     requestedMem: Float!
 }
 
+input TaskFilterInput {
+    statuses: [String]
+    usernames: [String]
+    partitions: [String]
+    licenseTypes: [String]
+    cpuRange: [String]
+    memRange: [String]
+    submittedAfter: String
+    submittedBefore: String
+}
+
 # Query types
 
 type Query {
@@ -81,6 +92,7 @@ type Query {
     getAllLicenses: [License]
     getUserTask(userTaskId: ID!): UserTask
     getAllUserTasks: [UserTask]
+    getFilteredUserTasks(filters: TaskFilterInput): [UserTask]
 }
 
 # Mutation types

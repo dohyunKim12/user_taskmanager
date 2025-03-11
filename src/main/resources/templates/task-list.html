@@ -22,23 +22,41 @@
                     <th class="py-2 px-1 w-[4%]">JobId</th>
                     <th class="py-2 px-1 w-[6%]">ShortCmd</th>
                     <th class="py-2 px-1">Command</th>
-                    <th class="py-2 px-1 w-[6%]">Username</th>
+                    <th class="py-2 px-1 w-[6%] relative">
+                        <span>Username</span>
+                        <button id="usernameToggle" class="bg-gray-300 rounded text-xs">▼</button>
+                        <div id="usernameDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10"></div>
+                    </th>
                     <th class="py-2 px-1 w-[6%]">Partition</th>
                     <th class="py-2 px-1 w-[6%]">License</th>
                     <th class="py-2 px-1 w-[6%]">Directory</th>
                     <th class="py-2 px-1 w-[6%]">Timelimit</th>
                     <th class="py-2 px-1 w-[3%]">CPU</th>
                     <th class="py-2 px-1 w-[3%]">Mem(MB)</th>
-                    <th class="py-2 px-1 w-[6%]">Status</th>
+
+                    <th class="py-2 px-1 w-[6%] relative">
+                        <span>Status</span>
+                        <button id="statusToggle" class="bg-gray-300 rounded text-xs">▼</button>
+                        <div id="statusDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10"></div>
+                    </th>
                     <th class="py-2 px-1 w-[5%]">Submitted At</th>
                     <th class="py-2 px-1 w-[5%]">Started At</th>
-                    <th class="py-2 px-1 w-[5%]">Ended At</th>
+                    <th class="relative py-2 px-1 w-[5%]">
+                        <span>Ended At</span>
+                        <button onclick="searchTasks()" class="bottom-1 right-1 text-[10px] px-1 py-0.5 bg-black text-white rounded shadow">
+                            Search
+                        </button>
+                    </th>
+
+
                 </tr>
                 </thead>
                 <tbody id="taskRows" class="text-xs text-center">
                 <!-- Task rows will be inserted here dynamically by JS -->
                 </tbody>
             </table>
+
+
 
             <div class="mt-8 flex justify-end space-x-4">
                 <button onclick="history.back()" class="px-6 py-2 border rounded">Back</button>
@@ -48,7 +66,38 @@
 </div>
 
 <script>
+    let filters = {
+        statuses: [],
+        usernames: [],
+        partitions: [],
+        licenseTypes: [],
+        cpuRange: [],
+        memRange: [],
+        submittedAfter: '',
+        submittedBefore: '',
+    };
+
+    const usernameList = new Set();
+    const partitionList = new Set();
+    const licenseTypeList = new Set();
+    const cpuList = new Set(['0','1','2','3','4','5','6','7','8+']);
+    const memList = new Set(['0~100Mb','100~500Mb','500~1Gb','1~100Gb','100Gb+']);
+    const statusList = new Set();
+
+    function updateFilter(field, value, checked) {
+        if (!filters[field]) filters[field] = [];
+        if (checked) {
+            filters[field].push(value);
+        } else {
+            filters[field] = filters[field].filter(item => item !== value);
+            if (filters[field].length === 0) {
+                delete filters[field];
+            }
+        }
+    }
+
     async function fetchTasks() {
+        filters = {};
         const query = `
             query GetAllUserTasks {
                 getAllUserTasks {
@@ -87,6 +136,11 @@
         const tasks = data.getAllUserTasks;
 
         const rows = tasks.map(task =>  {
+            licenseTypeList.add(task.userTaskDetail.licenseType);
+            partitionList.add(task.userTaskDetail.partition);
+            usernameList.add(task.username);
+            statusList.add(task.status);
+
             const formattedSubmittedAt = task.submittedAt ? task.submittedAt.replace(/\.\d+$/, '') : '-';
             const formattedStartedAt = task.startedAt ? task.startedAt.replace(/\.\d+$/, '') : '-';
             const formattedEndedAt = task.endedAt ? task.endedAt.replace(/\.\d+$/, '') : '-';
@@ -123,7 +177,112 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchTasks);
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchTasks().then(() => {
+            populateDropdown('status', statusList, 'status-checkbox', 'statuses');
+            populateDropdown('username', usernameList, 'username-checkbox', 'usernames');
+        });
+    });
+    function populateDropdown(dropdownId, listSet, checkboxClass, filterField) {
+        const dropdown = document.getElementById(`${dropdownId}Dropdown`);
+        dropdown.innerHTML = '';
+
+        listSet.forEach(itemValue => {
+            const item = document.createElement('label');
+            item.classList.add('flex', 'items-center', 'px-2', 'py-1');
+            item.innerHTML = `
+            <input type="checkbox" class="mr-1 ${checkboxClass}" value="${item}" onclick="updateFilter('${filterField}', '${itemValue}', this.checked)"/>
+            <span class="text-xs">${itemValue}</span>`;
+            dropdown.appendChild(item);
+        });
+
+        setupDropdownEvents(dropdownId);
+    }
+    function setupDropdownEvents(dropdownId) {
+        const dropdown = document.getElementById(`${dropdownId}Dropdown`);
+        const toggleBtn = document.getElementById(`${dropdownId}Toggle`);
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+
+        dropdown.querySelectorAll('input').forEach(checkbox => {
+            checkbox.addEventListener('click', (e) => e.stopPropagation());
+        });
+    }
+
+    async function searchTasks() {
+        const query = `
+        query FilterTasks($filters: TaskFilterInput) {
+            getFilteredUserTasks(filters: $filters) {
+                userTaskId
+                jobId
+                shortCmd
+                userId
+                username
+                submittedAt
+                startedAt
+                endedAt
+                status
+                userTaskDetail {
+                    command
+                    partition
+                    licenseType
+                    licenseCount
+                    directory
+                    uuid
+                    timelimit
+                    requestedCpu
+                    requestedMem
+                }
+            }
+        }
+    `;
+
+        const res = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, variables: { filters } })
+        });
+
+        const {data} = await res.json();
+        const tasks = data.getFilteredUserTasks;
+
+        const rows = tasks.map(task => {
+            const formattedSubmittedAt = task.submittedAt ? task.submittedAt.replace(/\.\d+$/, '') : '-';
+            const formattedStartedAt = task.startedAt ? task.startedAt.replace(/\.\d+$/, '') : '-';
+            const formattedEndedAt = task.endedAt ? task.endedAt.replace(/\.\d+$/, '') : '-';
+
+            return `
+        <tr>
+            <td class="px-1 py-2">${task.userTaskId}</td>
+            <td class="px-1 py-2">${task.jobId || '-'}</td>
+            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
+            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
+            <td class="px-1 py-2">${task.username}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
+            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
+            <td class="px-1 py-2">${formattedSubmittedAt}</td>
+            <td class="px-1 py-2">${formattedStartedAt}</td>
+            <td class="px-1 py-2">${formattedEndedAt}</td>
+        </tr>`;
+        });
+
+        document.getElementById('taskRows').innerHTML = rows.join('');
+    }
+
 </script>
 
 </body>

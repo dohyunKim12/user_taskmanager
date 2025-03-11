@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.model.TaskFilterInput;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetail;
 import com.bos.usertaskmanager.service.UserTaskService;
@@ -27,6 +28,11 @@ public class UserTaskResolver {
 
     @QueryMapping
     public List<UserTask> getAllUserTasks() {
+        return userTaskService.getAllUserTasks();
+    }
+
+    @QueryMapping
+    public List<UserTask> getFilteredUserTasks(@Argument TaskFilterInput filters) {
         return userTaskService.getAllUserTasks();
     }
 
