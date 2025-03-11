@@ -1,12 +1,15 @@
 package com.bos.usertaskmanager.service;
 
+import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.model.UserTask;
+import com.bos.usertaskmanager.repository.UserMapper;
 import com.bos.usertaskmanager.repository.UserTaskDetailMapper;
 import com.bos.usertaskmanager.repository.UserTaskMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,7 +25,7 @@ public class UserTaskService {
     }
 
     public List<UserTask> getAllUserTasks() {
-        return userTaskMapper.findAll();
+        return userTaskMapper.getAllUserTasks();
     }
 
     public UserTask createUserTask(UserTask userTask) {

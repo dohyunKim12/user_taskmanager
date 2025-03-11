@@ -173,9 +173,10 @@
 
             const detail = {
                 command: commandInput.value,
+                partition: row.children[5].querySelector('input').value,
                 licenseType: row.children[3].querySelector('input').value,
                 licenseCount: parseInt(row.children[4].querySelector('input').value),
-                directory: row.children[5].querySelector('input').value,
+                // directory: row.children[5].querySelector('input').value,
                 uuid: crypto.randomUUID(),
                 timelimit: parseInt(row.children[6].querySelector('input[type=number]').value) *
                     parseInt(row.children[6].querySelector('select').value),

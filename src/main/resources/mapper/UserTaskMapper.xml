@@ -2,33 +2,41 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.bos.usertaskmanager.repository.UserTaskMapper">
 
-<!--    <resultMap id="taskResultMap" type="UserTask">-->
-<!--        <id property="id" column="id"/>-->
-<!--        <result property="description" column="description"/>-->
-<!--        <result property="status" column="status"/>-->
-<!--        <result property="createdAt" column="created_at"/>-->
-<!--    </resultMap>-->
+    <select id="getAllUserTasks" resultMap="UserTaskResultMap">
+        SELECT
+            ut.user_task_id, ut.job_id, ut.short_cmd, ut.user_id,
+            u.username, ut.submitted_at, ut.started_at, ut.ended_at, ut.status,
+            utd.command, utd.partition, utd.license_type, utd.license_count,
+            utd.directory, utd.uuid, utd.timelimit, utd.requested_cpu, utd.requested_mem
+        FROM user_task ut
+                 JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
+                 JOIN users u ON ut.user_id = u.user_id
+    </select>
 
-<!--    <select id="findByCompleted" resultMap="taskResultMap">-->
-<!--        SELECT * FROM tasks WHERE completed = #{completed}-->
-<!--    </select>-->
-
-<!--    <insert id="insertTask" parameterType="Task">-->
-<!--        INSERT INTO tasks(description, completed, created_at)-->
-<!--        VALUES (#{description}, #{completed}, #{createdAt})-->
-<!--    </insert>-->
-
-<!--    <update id="updateTask" parameterType="Task">-->
-<!--        UPDATE tasks-->
-<!--        SET description = #{description}, completed = #{completed}-->
-<!--        WHERE id = #{id}-->
-<!--    </update>-->
-
-<!--    <delete id="deleteTask" parameterType="long">-->
-<!--        DELETE FROM tasks WHERE id = #{id}-->
-<!--    </delete>-->
+    <resultMap id="UserTaskResultMap" type="com.bos.usertaskmanager.model.UserTask">
+        <result property="userTaskId" column="user_task_id"/>
+        <result property="jobId" column="job_id"/>
+        <result property="shortCmd" column="short_cmd"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="endedAt" column="ended_at"/>
+        <result property="status" column="status"/>
+        <association property="userTaskDetail" javaType="com.bos.usertaskmanager.model.UserTaskDetail">
+            <result property="userTaskId" column="user_task_id"/>
+            <result property="command" column="command"/>
+            <result property="partition" column="partition"/>
+            <result property="licenseType" column="license_type"/>
+            <result property="licenseCount" column="license_count"/>
+            <result property="directory" column="directory"/>
+            <result property="uuid" column="uuid"/>
+            <result property="timelimit" column="timelimit"/>
+            <result property="requestedCpu" column="requested_cpu"/>
+            <result property="requestedMem" column="requested_mem"/>
+        </association>
+    </resultMap>
 
 </mapper>

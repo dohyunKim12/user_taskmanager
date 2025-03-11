@@ -10,6 +10,7 @@ import lombok.Setter;
 public class UserTaskDetail {
     private String userTaskId;
     private String command;
+    private String partition;
     private String licenseType;
     private Integer licenseCount;
     private String directory;

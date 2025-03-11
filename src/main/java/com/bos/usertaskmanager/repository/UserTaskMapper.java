@@ -73,4 +73,6 @@ public interface UserTaskMapper {
 
     @Select("SELECT 'UTK-' || LPAD(nextval('user_task_seq')::text, 6, '0')")
     String getNextTaskId();
+
+    List<UserTask> getAllUserTasks();
 }

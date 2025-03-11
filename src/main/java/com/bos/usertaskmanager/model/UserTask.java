@@ -13,6 +13,7 @@ public class UserTask {
     private Integer jobId;
     private String shortCmd;
     private String userId;
+    private String username;
     private Timestamp submittedAt;
     private Timestamp startedAt;
     private Timestamp endedAt;

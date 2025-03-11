@@ -3,12 +3,14 @@ package com.bos.usertaskmanager.graphql;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetail;
 import com.bos.usertaskmanager.service.UserTaskService;
+import com.bos.usertaskmanager.util.TimeUtils;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -34,7 +36,7 @@ public class UserTaskResolver {
         UserTask userTask = new UserTask();
         userTask.setUserId(userId);
         userTask.setStatus("pending");
-        userTask.setSubmittedAt(Timestamp.valueOf(java.time.LocalDateTime.now()));
+        userTask.setSubmittedAt(Timestamp.valueOf(LocalDateTime.now()));
         userTask.setUserTaskDetail(detail);
         return userTaskService.createUserTask(userTask);
     }

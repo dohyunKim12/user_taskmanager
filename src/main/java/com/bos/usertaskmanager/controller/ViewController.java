@@ -15,4 +15,9 @@ public class ViewController {
     public String showAddTaskBatchForm() {
         return "task-add-batch";
     }
+
+    @GetMapping("/task/list")
+    public String showTaskListPage() {
+        return "task-list";
+    }
 }

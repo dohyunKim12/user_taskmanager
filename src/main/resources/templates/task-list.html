@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Tasks - User Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen">
+    <div class="w-60 bg-gray-700"></div>
+
+    <div class="flex-1 flex flex-col">
+        <nav class="bg-black text-white py-4 px-8 font-bold">User Task Manager</nav>
+
+        <div class="mx-auto py-12 px-20">
+            <h2 class="text-3xl font-bold mb-8">View Tasks</h2>
+
+            <table class="w-full bg-white rounded shadow table-fixed">
+                <thead>
+                <tr class="text-xs bg-gray-200">
+                    <th class="py-2 px-1 w-[4%]">TaskId</th>
+                    <th class="py-2 px-1 w-[4%]">JobId</th>
+                    <th class="py-2 px-1 w-[6%]">ShortCmd</th>
+                    <th class="py-2 px-1">Command</th>
+                    <th class="py-2 px-1 w-[6%]">Username</th>
+                    <th class="py-2 px-1 w-[6%]">Partition</th>
+                    <th class="py-2 px-1 w-[6%]">License</th>
+                    <th class="py-2 px-1 w-[6%]">Directory</th>
+                    <th class="py-2 px-1 w-[6%]">Timelimit</th>
+                    <th class="py-2 px-1 w-[3%]">CPU</th>
+                    <th class="py-2 px-1 w-[3%]">Mem(MB)</th>
+                    <th class="py-2 px-1 w-[6%]">Status</th>
+                    <th class="py-2 px-1 w-[5%]">Submitted At</th>
+                    <th class="py-2 px-1 w-[5%]">Started At</th>
+                    <th class="py-2 px-1 w-[5%]">Ended At</th>
+                </tr>
+                </thead>
+                <tbody id="taskRows" class="text-xs text-center">
+                <!-- Task rows will be inserted here dynamically by JS -->
+                </tbody>
+            </table>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button onclick="history.back()" class="px-6 py-2 border rounded">Back</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchTasks() {
+        const query = `
+            query GetAllUserTasks {
+                getAllUserTasks {
+                    userTaskId
+                    jobId
+                    shortCmd
+                    userId
+                    username
+                    submittedAt
+                    startedAt
+                    endedAt
+                    status
+                    userTaskDetail {
+                        userTaskId
+                        command
+                        partition
+                        licenseType
+                        licenseCount
+                        directory
+                        uuid
+                        timelimit
+                        requestedCpu
+                        requestedMem
+                    }
+                }
+            }
+        `;
+
+        const res = await fetch('/graphql', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query})
+        });
+
+        const { data } = await res.json();
+        const tasks = data.getAllUserTasks;
+
+        const rows = tasks.map(task =>  {
+            const formattedSubmittedAt = task.submittedAt ? task.submittedAt.replace(/\.\d+$/, '') : '-';
+            const formattedStartedAt = task.startedAt ? task.startedAt.replace(/\.\d+$/, '') : '-';
+            const formattedEndedAt = task.endedAt ? task.endedAt.replace(/\.\d+$/, '') : '-';
+            return `
+        <tr>
+            <td class="px-1 py-2">${task.userTaskId}</td>
+            <td class="px-1 py-2">${task.jobId || '-'}</td>
+            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
+            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
+            <td class="px-1 py-2">${task.username}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
+            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
+            <td class="px-1 py-2">${formattedSubmittedAt}</td>
+            <td class="px-1 py-2">${formattedStartedAt}</td>
+            <td class="px-1 py-2">${formattedEndedAt}</td>
+        </tr>`;
+        });
+
+        document.getElementById('taskRows').innerHTML = rows.join('');
+    }
+
+    function statusColor(status) {
+        switch(status) {
+            case 'pending': return 'text-gray-500';
+            case 'running': return 'text-blue-500';
+            case 'completed': return 'text-green-600';
+            case 'failed': return 'text-red-500';
+            default: return 'text-black';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchTasks);
+</script>
+
+</body>
+</html>

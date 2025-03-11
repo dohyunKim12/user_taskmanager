@@ -30,6 +30,7 @@ type UserTask {
     jobId: Int
     shortCmd: String
     userId: String!
+    username: String
     submittedAt: String!
     startedAt: String
     endedAt: String
@@ -45,9 +46,10 @@ type AddBatchOutput {
 
 input UserTaskDetailInput {
     command: String!
+    partition: String!
     licenseType: String!
     licenseCount: Int!
-    directory: String!
+    directory: String
     uuid: String!
     timelimit: Float!
     requestedCpu: Float!
@@ -57,9 +59,10 @@ input UserTaskDetailInput {
 type UserTaskDetail {
     userTaskId: ID!
     command: String!
+    partition: String!
     licenseType: String!
     licenseCount: Int!
-    directory: String!
+    directory: String
     uuid: String!
     timelimit: Float!
     requestedCpu: Float!
