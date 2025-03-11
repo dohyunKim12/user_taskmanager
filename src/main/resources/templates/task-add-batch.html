@@ -14,19 +14,16 @@
     <div class="flex-1 flex flex-col">
         <nav class="bg-black text-white py-4 px-8 font-bold">User Task Manager</nav>
 
-        <!--        - `max-w-5xl`: 최대 너비를 Tailwind CSS의 5xl 크기로 설정합니다.-->
-        <!--        - `mx-auto`: 수평 방향으로 자동 마진을 적용하여 중앙 정렬합니다.-->
-        <!--        - `py-12`: 상하 패딩을 12 단위로 설정합니다.-->
-        <!--        - `px-8`: 좌우 패딩을 8 단위로 설정합니다.-->
-        <!--        - `text-3xl`: 텍스트 크기를 3xl로 설정합니다.-->
-        <!--        - `font-bold`: 텍스트를 굵게 설정합니다.-->
-        <!--        - `mb-8`: 하단 마진을 8 단위로 설정합니다.-->
         <div class="mx-auto py-12 px-20">
             <h2 class="text-3xl font-bold mb-8">Add Tasks (Batch)</h2>
 
             <div class="mb-4">
                 <label class="block font-semibold mb-2">Username</label>
                 <input id="username" class="border py-2 px-4 w-full outline-none" placeholder="Enter Username">
+            </div>
+
+            <div class="mb-4">
+                <input type="file" id="fileInput" accept=".txt" class="block">
             </div>
 
             <table class="w-full bg-white rounded shadow table-fixed">
@@ -169,7 +166,7 @@
         const rows = document.querySelectorAll('#taskRows tr');
         for (const row of rows) {
             const resultCell = row.querySelector('.result-cell');
-            const commandInput = row.children[7].querySelector('input');
+            const commandInput = row.children[7].querySelector('textarea');
             if(resultCell.textContent.trim().startsWith('Success') || !commandInput.value.trim()) {
                 continue;
             }
@@ -244,6 +241,74 @@
             autoResizeTextarea(event.target);
         }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileInput = document.getElementById('fileInput');
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                alert("파일을 선택해주세요.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                console.log("reading file...✅");
+                const commands = e.target.result.split('\n')
+                    .map(cmd => cmd.trim())
+                    .filter(cmd => cmd.length > 0);
+
+                const taskRows = document.getElementById('taskRows');
+                taskRows.innerHTML = '';
+
+                commands.forEach((command, index) => {
+                    const trimmedCmd = command.trim();
+                    const newRow = `
+<tr>
+    <td class="text-sm text-center font-semibold text-gray-700 row-number">${index + 1}</td>
+    <td><input type="number" class="text-sm text-center border py-2 px-2 w-full outline-none" value="1"></td>
+    <td><input class="text-sm border py-2 px-2 w-full outline-none" placeholder="e.g., 8Gi" value="50Mb"></td>
+    <td><input class="text-sm border py-2 px-2 w-full outline-none" value="primesim"></td>
+    <td><input type="number" class="text-sm border py-2 px-2 w-full outline-none" value="1"></td>
+    <td><input class="text-sm border py-2 px-2 w-full outline-none" value="library"></td>
+    <td class="text-sm py-2 px-2">
+        <div class="flex items-center space-x-1">
+            <input type="number" class="border px-2 py-1 outline-none w-20" value="1">
+            <select class="appearance-none border rounded px-2 py-1 outline-none">
+                <option value="1">Min</option>
+                <option value="60">Hour</option>
+                <option value="1440" selected>Day</option>
+            </select>
+        </div>
+    </td>
+    <td class="text-xs py-2 px-2">
+        <textarea class="border py-2 px-2 w-full outline-none resize-y"
+                  rows="1"
+                  oninput="autoResizeTextarea(this)">${trimmedCmd}</textarea>
+    </td>
+    <td class="text-center space-x-2">
+        <button class="text-blue-500" onclick="copyRow(this)">Copy</button>
+        <button class="text-red-500" onclick="deleteRow(this)">Delete</button>
+    </td>
+    <td class="text-sm text-center result-cell"></td>
+</tr>`;
+                    taskRows.insertAdjacentHTML('beforeend', newRow);
+                });
+
+                updateRowNumbers();
+            };
+
+            reader.onerror = function(e) {
+                console.error("읽기 오류:", reader.error);
+                alert("파일 읽기 오류: " + reader.error.message);
+            };
+
+            reader.readAsText(file);
+        });
+    });
+
 
 </script>
 
