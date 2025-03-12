@@ -18,8 +18,13 @@ public class TaskFilterInput {
     private List<Double> sanitizedCpuRange;
     private List<String> memRange;
     private List<MemRange> sanitizedMemRange;
-    private String submittedAfter;
-    private String submittedBefore;
+
+    private String submittedFrom;
+    private String submittedTo;
+    private String startedFrom;
+    private String startedTo;
+    private String endedFrom;
+    private String endedTo;
 
     public void sanitize() {
         if(statuses != null && statuses.isEmpty()) statuses = null;
@@ -36,9 +41,6 @@ public class TaskFilterInput {
                 }
             }
         }
-        // validate submittedAfter and submittedBefore
-        if(submittedAfter != null && submittedAfter.isEmpty()) submittedAfter = null;
-        if(submittedBefore != null && submittedBefore.isEmpty()) submittedBefore = null;
         if (memRange != null && !memRange.isEmpty()) {
             sanitizedMemRange = new ArrayList<>();
             for (String range : memRange) {

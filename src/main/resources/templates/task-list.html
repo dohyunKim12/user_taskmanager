@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <title>User Tasks - User Task Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!--For datetime input-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+
 </head>
 <body class="bg-gray-100">
+<nav class="bg-black text-white py-4 px-16 font-bold">User Task Manager</nav>
 <div class="flex h-screen">
-    <div class="w-60 bg-gray-700"></div>
-
+    <!-- SideBar -->
+    <div class="w-60 bg-gray-700 text-gray-200 flex flex-col py-4 px-2 space-y-1"></div>
+    <!-- Main Page -->
     <div class="flex-1 flex flex-col">
-        <nav class="bg-black text-white py-4 px-8 font-bold">User Task Manager</nav>
-
-        <div class="mx-auto py-12 px-20">
+        <!-- Main Content -->
+        <div class="mx-auto py-12 pl-10 pr-24">
             <h2 class="text-3xl font-bold mb-8">View Tasks</h2>
             <div class="flex items-center justify-between mb-2">
                 <button id="filtersBtn" class="text-sm px-2 py-1 border rounded bg-gray-100 hover:bg-gray-200 mr-2">
@@ -55,9 +63,45 @@
                         <button id="statusToggle" class="px-1 py-1 bg-gray-300 rounded">Status</button>
                         <div id="statusDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10"></div>
                     </th>
-                    <th class="py-2 px-1 w-[5.5%] text-[11px]">Submitted At</th>
-                    <th class="py-2 px-1 w-[5%]">Started At</th>
-                    <th class="relative py-2 px-1 w-[5%]">Ended At</th>
+                    <th class="py-2 px-1 w-[5.5%] text-[10.5px] relative">
+                        <button id="submittedAtToggle" class="px-1 py-1 bg-gray-300 rounded">Submitted At</button>
+                        <div id="submittedAtDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10">
+                            <div class="mb-1">
+                                <label>From:</label>
+                                <input type="text" id="submittedFrom" class="border rounded px-1 py-0.5">
+                            </div>
+                            <div class="mb-1">
+                                <label>To:</label>
+                                <input type="text" id="submittedTo" class="border rounded px-1 py-0.5">
+                            </div>
+                        </div>
+                    </th>
+                    <th class="py-2 px-1 w-[5%] relative">
+                        <button id="startedAtToggle" class="px-1 py-1 bg-gray-300 rounded">Started At</button>
+                        <div id="startedAtDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10">
+                            <div class="mb-1">
+                                <label>From:</label>
+                                <input type="text" id="startedFrom" class="border rounded px-1 py-0.5">
+                            </div>
+                            <div class="mb-1">
+                                <label>To:</label>
+                                <input type="text" id="startedTo" class="border rounded px-1 py-0.5">
+                            </div>
+                        </div>
+                    </th>
+                    <th class="py-2 px-1 w-[5%] relative">
+                        <button id="endedAtToggle" class="px-1 py-1 bg-gray-300 rounded">Ended At</button>
+                        <div id="endedAtDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10">
+                            <div class="mb-1">
+                                <label>From:</label>
+                                <input type="text" id="endedFrom" class="border rounded px-1 py-0.5">
+                            </div>
+                            <div class="mb-1">
+                                <label>To:</label>
+                                <input type="text" id="endedTo" class="border rounded px-1 py-0.5">
+                            </div>
+                        </div>
+                    </th>
 
                 </tr>
                 </thead>
@@ -76,6 +120,14 @@
 </div>
 
 <script>
+    ['submittedFrom', 'submittedTo', 'startedFrom', 'startedTo', 'endedFrom', 'endedTo']
+        .forEach(id => {
+            $(`#${id}`).datetimepicker({
+                dateFormat: 'yy-mm-dd',
+                timeFormat: 'HH:mm:ss'
+            });
+        });
+
     let filters = {
         statuses: [],
         usernames: [],
@@ -83,9 +135,15 @@
         licenseTypes: [],
         cpuRange: [],
         memRange: [],
-        submittedAfter: '',
-        submittedBefore: '',
+        submittedFrom: null,
+        submittedTo: null,
+        startedFrom: null,
+        startedTo: null,
+        endedFrom: null,
+        endedTo: null,
     };
+
+    let filtersAreOpen = false;
 
     const usernameList = new Set();
     const partitionList = new Set();
@@ -189,14 +247,20 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         fetchTasks().then(() => {
-            populateDropdown('status', statusList, 'status-checkbox', 'statuses');
-            populateDropdown('username', usernameList, 'username-checkbox', 'usernames');
             populateDropdown('cpu', cpuList, 'cpu-checkbox', 'cpuRange');
             populateDropdown('mem', memList, 'mem-checkbox', 'memRange');
+            populateDropdown('username', usernameList, 'username-checkbox', 'usernames');
             populateDropdown('partition', partitionList, 'partition-checkbox', 'partitions');
             populateDropdown('licenseType', licenseTypeList, 'licenseType-checkbox', 'licenseTypes');
+            populateDropdown('status', statusList, 'status-checkbox', 'statuses');
         });
+
+        setupDropdownEvents('submittedAt');
+        setupDropdownEvents('startedAt');
+        setupDropdownEvents('endedAt');
     });
+
+
     function populateDropdown(dropdownId, listSet, checkboxClass, filterField) {
         const dropdown = document.getElementById(`${dropdownId}Dropdown`);
         dropdown.innerHTML = '';
@@ -233,7 +297,26 @@
         });
     }
 
+    function getDateTimeValue(id) {
+        const val = document.getElementById(id).value;
+        return val && val !== '' ? val.replace('T', ' ') + ':00' : null;
+    }
+
     async function searchTasks() {
+        const dateFields = [ // [elementId, filterKey]
+            ['submittedFrom', 'submittedFrom'],
+            ['submittedTo', 'submittedTo'],
+            ['startedFrom', 'startedFrom'],
+            ['startedTo', 'startedTo'],
+            ['endedFrom', 'endedFrom'],
+            ['endedTo', 'endedTo']
+        ];
+        dateFields.forEach(([elementId, filterKey]) => {
+            const dateValue = getDateTimeValue(elementId);
+            if (dateValue) filters[filterKey] = dateValue;
+            else delete filters[filterKey];
+        });
+
         const query = `
         query FilterTasks($filters: TaskFilterInput) {
             getFilteredUserTasks(filters: $filters) {
@@ -302,7 +385,19 @@
         e.stopPropagation();
 
         const toggles = document.querySelectorAll('[id$="Toggle"]');
-        toggles.forEach(btn => btn.click());
+        toggles.forEach(btn => {
+            const dropdownId = btn.getAttribute('id').replace('Toggle', 'Dropdown');
+            const dropdown = document.getElementById(dropdownId);
+
+            if (dropdown) {
+                if (filtersAreOpen) {
+                    dropdown.classList.add('hidden');
+                } else {
+                    dropdown.classList.remove('hidden');
+                }
+            }
+        });
+        filtersAreOpen = !filtersAreOpen;
     });
 
 </script>

@@ -76,8 +76,12 @@ input TaskFilterInput {
     licenseTypes: [String]
     cpuRange: [String]
     memRange: [String]
-    submittedAfter: String
-    submittedBefore: String
+    submittedFrom: String
+    submittedTo: String
+    startedFrom: String
+    startedTo: String
+    endedFrom: String
+    endedTo: String
 }
 
 # Query types

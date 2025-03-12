@@ -27,7 +27,7 @@
             </if>
 
             <if test="cpuOverValue != null and cpuOverValue > 0">
-                AND utd.requested_cpu &gt;= #{cpuOverValue}
+                OR utd.requested_cpu &gt;= #{cpuOverValue}
             </if>
 
             <if test="sanitizedMemRange != null and sanitizedMemRange.size() > 0">
@@ -68,10 +68,31 @@
             </if>
 
             <if test="statuses != null and statuses.size() > 0">
-                ut.status IN
+                AND ut.status IN
                 <foreach collection="statuses" item="status" open="(" separator="," close=")">
                     #{status}
                 </foreach>
+            </if>
+
+            <if test="submittedFrom != null and submittedFrom != ''">
+                AND ut.submitted_at &gt;= TO_TIMESTAMP(#{submittedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            <if test="submittedTo != null and submittedTo != ''">
+                AND ut.submitted_at &lt;= TO_TIMESTAMP(#{submittedTo}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+
+            <if test="startedFrom != null and startedFrom != ''">
+                AND ut.started_at &gt;= TO_TIMESTAMP(#{startedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            <if test="startedTo != null and startedTo != ''">
+                AND ut.started_at &lt;= TO_TIMESTAMP(#{startedTo}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+
+            <if test="endedFrom != null and endedFrom != ''">
+                AND ut.ended_at &gt;= TO_TIMESTAMP(#{endedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            <if test="endedTo != null and endedTo != ''">
+                AND ut.ended_at &lt;= TO_TIMESTAMP(#{endedTo}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
 
         </where>
