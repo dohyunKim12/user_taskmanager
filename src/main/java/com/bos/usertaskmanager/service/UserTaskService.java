@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.service;
 
+import com.bos.usertaskmanager.model.TaskFilterInput;
 import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.repository.UserMapper;
@@ -26,6 +27,10 @@ public class UserTaskService {
 
     public List<UserTask> getAllUserTasks() {
         return userTaskMapper.getAllUserTasks();
+    }
+
+    public List<UserTask> getFilteredUserTasks(TaskFilterInput filters) {
+        return userTaskMapper.getFilteredUserTasks(filters);
     }
 
     public UserTask createUserTask(UserTask userTask) {

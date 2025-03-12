@@ -6,14 +6,77 @@
 
     <select id="getAllUserTasks" resultMap="UserTaskResultMap">
         SELECT
-            ut.user_task_id, ut.job_id, ut.short_cmd, ut.user_id,
-            u.username, ut.submitted_at, ut.started_at, ut.ended_at, ut.status,
-            utd.command, utd.partition, utd.license_type, utd.license_count,
-            utd.directory, utd.uuid, utd.timelimit, utd.requested_cpu, utd.requested_mem
+            ut.*, u.username, utd.*
         FROM user_task ut
                  JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
                  JOIN users u ON ut.user_id = u.user_id
     </select>
+
+    <select id="getFilteredUserTasks" resultMap="UserTaskResultMap" parameterType="com.bos.usertaskmanager.model.TaskFilterInput">
+        SELECT
+        ut.*, u.username, utd.*
+        FROM user_task ut
+        JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
+        JOIN users u ON ut.user_id = u.user_id
+        <where>
+            <if test="sanitizedCpuRange != null and sanitizedCpuRange.size() > 0">
+                utd.requested_cpu IN
+                <foreach collection="sanitizedCpuRange" item="cpu" open="(" separator="," close=")">
+                    #{cpu}
+                </foreach>
+            </if>
+
+            <if test="cpuOverValue != null and cpuOverValue > 0">
+                AND utd.requested_cpu &gt;= #{cpuOverValue}
+            </if>
+
+            <if test="sanitizedMemRange != null and sanitizedMemRange.size() > 0">
+                AND (
+                <foreach collection="sanitizedMemRange" item="range" separator=" OR ">
+                    (
+                    <if test="range.minMem != null">
+                        utd.requested_mem &gt;= #{range.minMem}
+                    </if>
+                    <if test="range.minMem != null and range.maxMem != null"> AND </if>
+                    <if test="range.maxMem != null">
+                        utd.requested_mem &lt; #{range.maxMem}
+                    </if>
+                    )
+                </foreach>
+                )
+            </if>
+
+            <if test="usernames != null and usernames.size() > 0">
+                AND u.username IN
+                <foreach collection="usernames" item="username" open="(" separator="," close=")">
+                    #{username}
+                </foreach>
+            </if>
+
+            <if test="partitions != null and partitions.size() > 0">
+                AND utd.partition IN
+                <foreach collection="partitions" item="partition" open="(" separator="," close=")">
+                    #{partition}
+                </foreach>
+            </if>
+
+            <if test="licenseTypes != null and licenseTypes.size() > 0">
+                AND utd.license_type IN
+                <foreach collection="licenseTypes" item="licenseType" open="(" separator="," close=")">
+                    #{licenseType}
+                </foreach>
+            </if>
+
+            <if test="statuses != null and statuses.size() > 0">
+                ut.status IN
+                <foreach collection="statuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+
+        </where>
+    </select>
+
 
     <resultMap id="UserTaskResultMap" type="com.bos.usertaskmanager.model.UserTask">
         <result property="userTaskId" column="user_task_id"/>

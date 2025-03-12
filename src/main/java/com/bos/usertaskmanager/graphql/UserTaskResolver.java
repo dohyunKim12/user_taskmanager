@@ -33,7 +33,10 @@ public class UserTaskResolver {
 
     @QueryMapping
     public List<UserTask> getFilteredUserTasks(@Argument TaskFilterInput filters) {
-        return userTaskService.getAllUserTasks();
+        if(filters != null) {
+            filters.sanitize();
+        }
+        return userTaskService.getFilteredUserTasks(filters);
     }
 
 

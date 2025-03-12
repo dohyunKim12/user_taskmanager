@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.repository;
 
+import com.bos.usertaskmanager.model.TaskFilterInput;
 import com.bos.usertaskmanager.model.UserTask;
 import org.apache.ibatis.annotations.*;
 
@@ -75,4 +76,6 @@ public interface UserTaskMapper {
     String getNextTaskId();
 
     List<UserTask> getAllUserTasks();
+
+    List<UserTask> getFilteredUserTasks(TaskFilterInput filterInput);
 }
