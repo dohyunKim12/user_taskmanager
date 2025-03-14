@@ -118,16 +118,45 @@
                 </tbody>
             </table>
 
-
-
             <div class="mt-8 flex justify-end space-x-4">
                 <button onclick="history.back()" class="px-6 py-2 border rounded">Back</button>
             </div>
         </div>
     </div>
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white rounded shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Login</h2>
+            <input type="text" id="username" placeholder="Username" class="border rounded px-3 py-2 mb-3 w-full"/>
+            <input type="password" id="password" placeholder="Password" class="border rounded px-3 py-2 mb-3 w-full"/>
+            <button onclick="login()" class="bg-black text-white rounded px-4 py-2">Login</button>
+            <button onclick="closeLoginModal()" class="ml-2 border px-3 py-2 rounded">Cancel</button>
+        </div>
+    </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+    let isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+
+    function openLoginModal() {
+        $('#loginModal').removeClass('hidden');
+        $('#loginModal').addClass('flex');
+    }
+    function closeLoginModal() {
+        $('#loginModal').removeClass('flex');
+        $('#loginModal').addClass('hidden');
+    }
+
+    if (!isLoggedIn) {
+        openLoginModal();
+    }
+
+    $(document).ajaxError(function(event, xhr) {
+        if(xhr.status === 401) {
+            openLoginModal();
+        }
+    });
+
     ['submittedFrom', 'submittedTo', 'startedFrom', 'startedTo', 'endedFrom', 'endedTo']
         .forEach(id => {
             $(`#${id}`).datetimepicker({
@@ -407,6 +436,25 @@
         });
         filtersAreOpen = !filtersAreOpen;
     });
+
+    function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+            .then(response => {
+                if(response.ok) {
+                    location.reload();
+                } else {
+                    alert('Login Failed. Please try again.');
+                }
+            });
+    }
+
 
 </script>
 
