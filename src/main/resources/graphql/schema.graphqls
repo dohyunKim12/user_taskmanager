@@ -5,6 +5,8 @@ type User {
     teamId: String
     username: String!
     email: String!
+    password: String
+    role: String
 }
 
 type Team {

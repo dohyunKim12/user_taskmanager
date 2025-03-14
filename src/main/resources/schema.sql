@@ -10,7 +10,9 @@ CREATE TABLE users (
                         user_id VARCHAR(10) PRIMARY KEY DEFAULT 'USR-' || LPAD(nextval('user_seq')::TEXT, 6, '0'),
                         team_id VARCHAR(10),
                         username VARCHAR(255) UNIQUE,
-                        email VARCHAR(255) UNIQUE
+                        email VARCHAR(255) UNIQUE,
+                        password VARCHAR(255),
+                        role VARCHAR(255)
 );
 
 -- Team table

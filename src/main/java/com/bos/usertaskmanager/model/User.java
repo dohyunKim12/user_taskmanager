@@ -10,6 +10,8 @@ import lombok.Setter;
 public class User {
     private String userId;
     private String teamId;
-    private String username;
+    private String username; // id
     private String email;
+    private String password;
+    private String role;
 }
