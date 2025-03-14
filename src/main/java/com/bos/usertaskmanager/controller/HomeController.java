@@ -10,6 +10,6 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("message", "Welcome to User Task Manager");
-        return "home";
+        return "index";
     }
 }

@@ -9,7 +9,13 @@
 <nav class="bg-black text-white py-4 px-16 font-bold">User Task Manager</nav>
 <div class="flex h-screen">
     <!-- Sidebar -->
-    <div class="w-60 bg-gray-700"></div>
+    <div class="w-60 bg-gray-700 text-gray-200 flex flex-col py-4 px-2 space-y-1">
+        <a href="/task/add" class="block py-2 px-3 rounded hover:bg-gray-600">Add Task</a>
+        <a href="/task/add/batch" class="block py-2 px-3 rounded hover:bg-gray-600">Add Tasks (Batch)</a>
+        <a href="/task/list" class="block py-2 px-3 rounded hover:bg-gray-600">View Tasks</a>
+        <a href="/task/details" class="block py-2 px-3 rounded hover:bg-gray-600">Task Details</a>
+        <a href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
+    </div>
     <!-- Main Page -->
     <div class="flex-1 flex flex-col">
         <!-- Main Content -->
