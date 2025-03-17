@@ -231,7 +231,7 @@
             }
         `;
 
-        const res = await fetch('/graphql', {
+        const res = await jwtFetch('/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query})
@@ -381,7 +381,7 @@
         }
     `;
 
-        const res = await fetch('/graphql', {
+        const res = await jwtFetch('/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, variables: { filters } })
@@ -437,23 +437,43 @@
         filtersAreOpen = !filtersAreOpen;
     });
 
-    function login() {
+    async function login() {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
 
-        fetch('/api/login', {
+        const response = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         })
-            .then(response => {
-                if(response.ok) {
-                    location.reload();
-                } else {
-                    alert('Login Failed. Please try again.');
-                }
-            });
+
+        if (response.ok) {
+            const data = await response.json();
+            const token = data.token;
+            if (token) {
+                localStorage.setItem('jwtToken', token);
+                location.reload();
+            } else {
+                alert("Login succeeded but no token received.");
+            }
+        } else {
+            alert('Login Failed. Please try again.');
+        }
     }
+
+    function jwtFetch(url, options = {}) {
+        const token = localStorage.getItem('jwtToken');
+
+        if (token) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        return fetch(url, options);
+    }
+
 
 
 </script>

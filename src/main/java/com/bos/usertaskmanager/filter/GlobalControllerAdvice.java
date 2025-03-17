@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.controller;
+package com.bos.usertaskmanager.filter;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
