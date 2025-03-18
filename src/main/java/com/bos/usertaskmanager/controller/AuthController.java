@@ -1,6 +1,7 @@
 package com.bos.usertaskmanager.controller;
 
 import com.bos.usertaskmanager.util.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -34,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> user, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> user) {
         try {
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.get("username"), user.get("password")));
             if(auth != null && auth.isAuthenticated()) {
@@ -56,4 +57,18 @@ public class AuthController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        ResponseCookie deleteCookie = ResponseCookie.from("jwtToken", "")
+                .path("/")
+                .httpOnly(true)
+                .maxAge(0)  // delete cookie(Set age to 0 to expire now) (call HttpServletResponse)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok().build();
+    }
+
 }

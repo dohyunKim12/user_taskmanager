@@ -13,8 +13,26 @@
 
 </head>
 <body class="bg-gray-100">
-<nav class="bg-black text-white py-4 px-16 font-bold">User Task Manager
-    <button class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">Login</button>
+
+<nav class="bg-black text-white py-4 px-16 font-bold flex justify-between">
+    <span>User Task Manager</span>
+    <div class="flex items-center space-x-4">
+        <!-- If Not Logged in -->
+        <button th:if="${!isLoggedIn}"
+                onclick="openLoginModal()"
+                class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+            Login
+        </button>
+
+        <!-- If Logged in -->
+        <div th:if="${isLoggedIn}" class="flex items-center space-x-3">
+            <span class="text-sm">Logged in as <strong th:text="${username}">username</strong></span>
+            <button onclick="logout()"
+                    class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+                Logout
+            </button>
+        </div>
+    </div>
 </nav>
 <div class="flex h-screen">
     <!-- SideBar -->
@@ -123,39 +141,12 @@
             </div>
         </div>
     </div>
-    <!-- Login Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center">
-        <div class="bg-white rounded shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Login</h2>
-            <input type="text" id="username" placeholder="Username" class="border rounded px-3 py-2 mb-3 w-full"/>
-            <input type="password" id="password" placeholder="Password" class="border rounded px-3 py-2 mb-3 w-full"/>
-            <button onclick="login()" class="bg-black text-white rounded px-4 py-2">Login</button>
-            <button onclick="closeLoginModal()" class="ml-2 border px-3 py-2 rounded">Cancel</button>
-        </div>
-    </div>
+    <div th:insert="~{fragments :: loginModal}"></div>
 </div>
 
+<script th:src="@{/js/auth.js}"></script>
 <script th:inline="javascript">
-    let isLoggedIn = /*[[${isLoggedIn}]]*/ false;
-
-    function openLoginModal() {
-        $('#loginModal').removeClass('hidden');
-        $('#loginModal').addClass('flex');
-    }
-    function closeLoginModal() {
-        $('#loginModal').removeClass('flex');
-        $('#loginModal').addClass('hidden');
-    }
-
-    if (!isLoggedIn) {
-        openLoginModal();
-    }
-
-    $(document).ajaxError(function(event, xhr) {
-        if(xhr.status === 401) {
-            openLoginModal();
-        }
-    });
+    let username = /*[[${username}]]*/ null;
 
     ['submittedFrom', 'submittedTo', 'startedFrom', 'startedTo', 'endedFrom', 'endedTo']
         .forEach(id => {
@@ -204,34 +195,14 @@
     async function fetchTasks() {
         filters = {};
         const query = `
-            query GetAllUserTasks {
-                getAllUserTasks {
-                    userTaskId
-                    jobId
-                    shortCmd
-                    userId
-                    username
-                    submittedAt
-                    startedAt
-                    endedAt
-                    status
-                    userTaskDetail {
-                        userTaskId
-                        command
-                        partition
-                        licenseType
-                        licenseCount
-                        directory
-                        uuid
-                        timelimit
-                        requestedCpu
-                        requestedMem
-                    }
-                }
+        query GetAllUserTasks {
+            getAllUserTasks {
+                userTaskId jobId shortCmd userId username submittedAt startedAt endedAt status
+                userTaskDetail { userTaskId command partition licenseType licenseCount directory uuid timelimit requestedCpu requestedMem }
             }
-        `;
+        }`;
 
-        const res = await jwtFetch('/graphql', {
+        const res = await apiFetch('/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query})
@@ -240,36 +211,14 @@
         const { data } = await res.json();
         const tasks = data.getAllUserTasks;
 
-        const rows = tasks.map(task =>  {
+        tasks.forEach(task => {
             licenseTypeList.add(task.userTaskDetail.licenseType);
             partitionList.add(task.userTaskDetail.partition);
             usernameList.add(task.username);
             statusList.add(task.status);
-
-            const formattedSubmittedAt = task.submittedAt ? task.submittedAt.replace(/\.\d+$/, '') : '-';
-            const formattedStartedAt = task.startedAt ? task.startedAt.replace(/\.\d+$/, '') : '-';
-            const formattedEndedAt = task.endedAt ? task.endedAt.replace(/\.\d+$/, '') : '-';
-            return `
-        <tr>
-            <td class="px-1 py-2">${task.userTaskId}</td>
-            <td class="px-1 py-2">${task.jobId || '-'}</td>
-            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
-            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
-            <td class="px-1 py-2">${task.username}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
-            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
-            <td class="px-1 py-2">${formattedSubmittedAt}</td>
-            <td class="px-1 py-2">${formattedStartedAt}</td>
-            <td class="px-1 py-2">${formattedEndedAt}</td>
-        </tr>`;
         });
 
-        document.getElementById('taskRows').innerHTML = rows.join('');
+        renderTasks(tasks);
     }
 
     function statusColor(status) {
@@ -340,48 +289,19 @@
     }
 
     async function searchTasks() {
-        const dateFields = [ // [elementId, filterKey]
-            ['submittedFrom', 'submittedFrom'],
-            ['submittedTo', 'submittedTo'],
-            ['startedFrom', 'startedFrom'],
-            ['startedTo', 'startedTo'],
-            ['endedFrom', 'endedFrom'],
-            ['endedTo', 'endedTo']
-        ];
-        dateFields.forEach(([elementId, filterKey]) => {
-            const dateValue = getDateTimeValue(elementId);
-            if (dateValue) filters[filterKey] = dateValue;
-            else delete filters[filterKey];
+        ['submittedFrom', 'submittedTo', 'startedFrom', 'startedTo', 'endedFrom', 'endedTo'].forEach(id => {
+            const val = getDateTimeValue(id);
+            if (val) filters[id] = val; else delete filters[id];
         });
 
         const query = `
         query FilterTasks($filters: TaskFilterInput) {
-            getFilteredUserTasks(filters: $filters) {
-                userTaskId
-                jobId
-                shortCmd
-                userId
-                username
-                submittedAt
-                startedAt
-                endedAt
-                status
-                userTaskDetail {
-                    command
-                    partition
-                    licenseType
-                    licenseCount
-                    directory
-                    uuid
-                    timelimit
-                    requestedCpu
-                    requestedMem
-                }
+            getFilteredUserTasks(filters: $filters) { userTaskId jobId shortCmd userId username submittedAt startedAt endedAt status
+                userTaskDetail { command partition licenseType licenseCount directory uuid timelimit requestedCpu requestedMem }
             }
-        }
-    `;
+        }`;
 
-        const res = await jwtFetch('/graphql', {
+        const res = await apiFetch('/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, variables: { filters } })
@@ -390,32 +310,7 @@
         const {data} = await res.json();
         const tasks = data.getFilteredUserTasks;
 
-        const rows = tasks.map(task => {
-            const formattedSubmittedAt = task.submittedAt ? task.submittedAt.replace(/\.\d+$/, '') : '-';
-            const formattedStartedAt = task.startedAt ? task.startedAt.replace(/\.\d+$/, '') : '-';
-            const formattedEndedAt = task.endedAt ? task.endedAt.replace(/\.\d+$/, '') : '-';
-
-            return `
-        <tr>
-            <td class="px-1 py-2">${task.userTaskId}</td>
-            <td class="px-1 py-2">${task.jobId || '-'}</td>
-            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
-            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
-            <td class="px-1 py-2">${task.username}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
-            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
-            <td class="px-1 py-2">${formattedSubmittedAt}</td>
-            <td class="px-1 py-2">${formattedStartedAt}</td>
-            <td class="px-1 py-2">${formattedEndedAt}</td>
-        </tr>`;
-        });
-
-        document.getElementById('taskRows').innerHTML = rows.join('');
+        renderTasks(tasks);
     }
 
     document.getElementById('filtersBtn').addEventListener('click', (e) => {
@@ -437,44 +332,29 @@
         filtersAreOpen = !filtersAreOpen;
     });
 
-    async function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+    function renderTasks(tasks) {
+        const rows = tasks.map(task => `
+        <tr>
+            <td class="px-1 py-2">${task.userTaskId}</td>
+            <td class="px-1 py-2">${task.jobId || '-'}</td>
+            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
+            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
+            <td class="px-1 py-2">${task.username}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
+            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
+            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
+            <td class="px-1 py-2">${task.submittedAt?.replace(/\.\d+$/, '') || '-'}</td>
+            <td class="px-1 py-2">${task.startedAt?.replace(/\.\d+$/, '') || '-'}</td>
+            <td class="px-1 py-2">${task.endedAt?.replace(/\.\d+$/, '') || '-'}</td>
+        </tr>`
+        ).join('');
 
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-
-        if (response.ok) {
-            const data = await response.json();
-            const token = data.token;
-            if (token) {
-                localStorage.setItem('jwtToken', token);
-                location.reload();
-            } else {
-                alert("Login succeeded but no token received.");
-            }
-        } else {
-            alert('Login Failed. Please try again.');
-        }
+        $('#taskRows').html(rows);
     }
-
-    function jwtFetch(url, options = {}) {
-        const token = localStorage.getItem('jwtToken');
-
-        if (token) {
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
-            };
-        }
-
-        return fetch(url, options);
-    }
-
-
 
 </script>
 

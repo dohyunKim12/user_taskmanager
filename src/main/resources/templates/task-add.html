@@ -6,7 +6,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-<nav class="bg-black text-white py-4 px-16 font-bold">User Task Manager</nav>
+<nav class="bg-black text-white py-4 px-16 font-bold flex justify-between">
+    <span>User Task Manager</span>
+    <div class="flex items-center space-x-4">
+        <!-- If Not Logged in -->
+        <button th:if="${!isLoggedIn}"
+                onclick="openLoginModal()"
+                class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+            Login
+        </button>
+
+        <!-- If Logged in -->
+        <div th:if="${isLoggedIn}" class="flex items-center space-x-3">
+            <span class="text-sm">Logged in as <strong th:text="${username}">username</strong></span>
+            <button onclick="logout()"
+                    class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+                Logout
+            </button>
+        </div>
+    </div>
+</nav>
 <div class="flex h-screen">
     <!-- Sidebar -->
     <div class="w-60 bg-gray-700 text-gray-200 flex flex-col py-4 px-2 space-y-1">
@@ -19,7 +38,7 @@
     <!-- Main Page-->
     <div class="flex-1 flex flex-col">
         <!-- Main Content -->
-        <div class="max-w-3xl mx-auto w-full py-12 px-8">
+        <div id="mainContent" class="max-w-3xl mx-auto w-full py-12 px-8">
             <h2 class="text-4xl font-bold mb-8">Add Task</h2>
             <div class="space-y-4">
                 <input id="username" class="border-b w-full py-2 outline-none" placeholder="Username"/>
@@ -45,9 +64,21 @@
             </div>
         </div>
     </div>
+    <div th:insert="~{fragments :: loginModal}"></div>
 </div>
 
-<script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:inline="javascript">
+    let isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+    let username = /*[[${username}]]*/ null;
+
+    document.getElementById("mainContent").addEventListener('click', async function(event) {
+        if (!isLoggedIn) {
+            event.preventDefault();
+            openLoginModal();
+        }
+    });
+
     async function submitTask() {
         const graphqlEndpoint = '/graphql';
         const username = document.getElementById('username').value;
@@ -59,7 +90,7 @@
                 }
             }
         `;
-        const userRes = await jwtFetch(graphqlEndpoint, {
+        const userRes = await apiFetch(graphqlEndpoint, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query: userQuery, variables: {username}})
@@ -91,7 +122,7 @@
             }
         `;
 
-        const taskRes = await jwtFetch(graphqlEndpoint, {
+        const taskRes = await apiFetch(graphqlEndpoint, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query: mutation, variables: {userId: userData.data.getUserByUsername.userId, detail}})
