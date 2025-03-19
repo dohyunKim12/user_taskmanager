@@ -4,7 +4,7 @@ type User {
     userId: ID!
     teamId: String
     username: String!
-    email: String!
+    email: String
     password: String
     role: String
 }

@@ -42,11 +42,6 @@
             <h2 class="text-3xl font-bold mb-8">Add Tasks (Batch)</h2>
 
             <div class="mb-4">
-                <label class="block font-semibold mb-2">Username</label>
-                <input id="username" class="border py-2 px-4 w-full outline-none" placeholder="Enter Username">
-            </div>
-
-            <div class="mb-4">
                 <input type="file" id="fileInput" accept=".txt" class="block">
             </div>
 
@@ -178,8 +173,6 @@
 
     async function submitTasks() {
         const graphqlEndpoint = '/graphql';
-        const username = document.getElementById('username').value;
-
         const userQuery = `
             query getUserByUsername($username: String!) {
                 getUserByUsername(username: $username) {
