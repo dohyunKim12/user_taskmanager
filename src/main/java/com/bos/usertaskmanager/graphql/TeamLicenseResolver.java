@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.TeamLicense;
 import com.bos.usertaskmanager.service.TeamLicenseService;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -19,7 +20,11 @@ public class TeamLicenseResolver {
     }
 
     @MutationMapping
-    public Boolean removeLicenseFromTeam(@Argument String teamId, @Argument String licenseId) {
-        return teamLicenseService.removeLicenseFromTeam(teamId, licenseId);
+    public ResultDto removeLicenseFromTeam(@Argument String teamId, @Argument String licenseId) {
+        if(teamLicenseService.removeLicenseFromTeam(teamId, licenseId)){
+            return new ResultDto(true, "License removed from team successfully");
+        } else {
+            return new ResultDto(false, "License not found in team");
+        }
     }
 }

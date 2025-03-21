@@ -2,14 +2,14 @@ async function login() {
     const username = document.getElementById("usernameLoginModal").value;
     const password = document.getElementById("passwordLoginModal").value;
 
-    const response = await fetch('/api/login', {
+    const loginReply = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
     })
 
-    if (response.ok) {
-        const data = await response.json();
+    if (loginReply.ok) {
+        const data = await loginReply.json();
         if(data.success) {
             location.reload();
         } else {

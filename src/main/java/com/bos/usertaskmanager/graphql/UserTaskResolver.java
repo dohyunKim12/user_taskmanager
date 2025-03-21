@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.TaskFilterInput;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.model.UserTaskDetail;
@@ -51,7 +52,11 @@ public class UserTaskResolver {
     }
 
     @MutationMapping
-    public Boolean deleteUserTask(@Argument String userTaskId) {
-        return userTaskService.deleteUserTask(userTaskId);
+    public ResultDto deleteUserTask(@Argument String userTaskId) {
+        if(userTaskService.deleteUserTask(userTaskId)){
+            return new ResultDto(true, "User Task deleted successfully");
+        } else {
+            return new ResultDto(false, "User Task not found");
+        }
     }
 }

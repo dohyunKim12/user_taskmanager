@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.service;
 
+import com.bos.usertaskmanager.dto.UserDto;
 import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.repository.UserMapper;
 import org.slf4j.Logger;
@@ -23,6 +24,10 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userMapper.getAllUsers();
+    }
+
+    public List<UserDto> getAllUsersInfo() {
+        return userMapper.getAllUsersInfo();
     }
 
 //    public User createUser(User user) {

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Tasks - User Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!--For datetime input-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+
+</head>
+<body class="bg-gray-100">
+
+<nav class="bg-black text-white py-4 px-16 font-bold flex justify-between">
+    <span>User Task Manager - Admin</span>
+    <div class="flex items-center space-x-4">
+        <!-- If Not Logged in -->
+        <button th:if="${!isLoggedIn}"
+                onclick="openLoginModal()"
+                class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+            Login
+        </button>
+
+        <!-- If Logged in -->
+        <div th:if="${isLoggedIn}" class="flex items-center space-x-3">
+            <span class="text-sm">Logged in as <strong th:text="${username}">username</strong></span>
+            <button onclick="logout()"
+                    class="text-sm bg-gray-800 text-white py-1 px-3 rounded hover:bg-gray-700">
+                Logout
+            </button>
+        </div>
+    </div>
+</nav>
+<div class="flex h-screen">
+    <!-- SideBar -->
+    <div class="w-60 bg-gray-700 text-gray-200 flex flex-col py-4 px-2 space-y-1">
+        <a href="/task/add" class="block py-2 px-3 rounded hover:bg-gray-600">Add Task</a>
+        <a href="/task/add/batch" class="block py-2 px-3 rounded hover:bg-gray-600">Add Tasks (Batch)</a>
+        <a href="/task/list" class="block py-2 px-3 rounded hover:bg-gray-600">View Tasks</a>
+        <a href="/task/details" class="block py-2 px-3 rounded hover:bg-gray-600">Task Details</a>
+        <a href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
+    </div>
+    <!-- Main Page -->
+    <div class="flex-1 flex flex-col">
+        <!-- Main Content -->
+        <div class="mx-8 py-12 pl-10 pr-24">
+            <!-- Tab buttons -->
+            <div class="mb-4">
+                <button onclick="showTab('usersTab')" class="tab-btn px-4 py-2 rounded bg-gray-300">Users</button>
+                <button onclick="showTab('teamsTab')" class="tab-btn px-4 py-2 rounded">Teams</button>
+                <button onclick="showTab('licensesTab')" class="tab-btn px-4 py-2 rounded">Licenses</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="usersTab" class="tab-content">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-semibold">User Management</h3>
+                    <button onclick="showModal('createUser')" class="text-xs px-2 py-0.5 bg-black text-white rounded shadow">
+                        Create
+                    </button>
+                </div>
+                <!-- User CRUD Table Here -->
+                <table class="w-full bg-white shadow rounded mt-4">
+                    <thead class="bg-gray-200 text-center">
+                    <tr>
+                        <th class="p-2">User ID</th>
+                        <th class="p-2">Username</th>
+                        <th class="p-2">Team</th>
+                        <th class="p-2">Email</th>
+                        <th class="p-2">Role</th>
+                        <th class="p-2">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-center">
+                    <tr th:each="user : ${users}" th:attr="data-user-id=${user.userId}">
+                        <td class="p-2" th:text="${user.userId}"></td>
+                        <td class="p-2 username" th:text="${user.username}"></td>
+                        <td class="p-2 team" th:attr="data-team-id=${user.teamId}" th:text="${user.teamName}"></td>
+                        <td class="p-2 email" th:text="${user.email}"></td>
+                        <td class="p-2 role" th:text="${user.role}"></td>
+                        <td class="p-2">
+                            <button onclick="editUser(event)"
+                                    class="text-blue-500 hover:text-blue-700">Edit</button>
+                            |
+                            <button onclick="deleteUser(event)"
+                                    class="text-red-500 hover:text-red-700">Delete</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="teamsTab" class="tab-content hidden">
+                <h3 class="text-xl font-semibold">Team Management</h3>
+                <!-- Team CRUD Table Here -->
+                <table class="w-full bg-white shadow rounded mt-4">
+                    <thead class="bg-gray-200">
+                    <tr>
+                        <th class="p-2">Team ID</th>
+                        <th class="p-2">Team Name</th>
+                        <th class="p-2">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr><td class="p-2">1</td><td class="p-2">TeamA</td><td class="p-2">Edit | Delete</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="licensesTab" class="tab-content hidden">
+                <h3 class="text-xl font-semibold">License Management</h3>
+                <!-- License CRUD Table Here -->
+                <table class="w-full bg-white shadow rounded mt-4">
+                    <thead class="bg-gray-200">
+                    <tr>
+                        <th class="p-2">License ID</th>
+                        <th class="p-2">License Type</th>
+                        <th class="p-2">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr><td class="p-2">1</td><td class="p-2">Standard</td><td class="p-2">Edit | Delete</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div th:insert="~{fragments :: loginModal}"></div>
+    <div th:insert="~{fragments :: createUserModal}"></div>
+</div>
+
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/common.js}"></script>
+<script th:inline="javascript">
+    let username = /*[[${username}]]*/ null;
+
+    function editUser(event) {
+        const btn = event.target;
+        const tr = btn.closest('tr');
+        const userId = tr.getAttribute('data-user-id');
+
+        if (btn.textContent === 'Edit') {
+            toggleEditMode(tr, true);
+            btn.textContent = 'Done';
+        } else {
+            updateUser(tr, userId);
+            btn.textContent = 'Edit';
+        }
+    }
+
+    function toggleEditMode(tr, isEditing) {
+        const usernameTd = tr.querySelector('.username');
+        const teamTd = tr.querySelector('.team');
+        const emailTd = tr.querySelector('.email');
+        const roleTd = tr.querySelector('.role');
+
+        if (isEditing) {
+            usernameTd.innerHTML = `<input type="text" value="${usernameTd.textContent}" class="border rounded px-1 py-0.5">`;
+            emailTd.innerHTML = `<input type="email" value="${emailTd.textContent}" class="border rounded px-1 py-0.5">`;
+
+            // team dropdown
+            let teamOptions = `<select class="border rounded px-1 py-0.5">`;
+            teamOptions += `<option value="${teamTd.getAttribute('data-team-id')}" selected>${teamTd.textContent}</option>`;
+            const teams = /*[[${teams}]]*/ [];
+            teams.forEach(team => {
+                if(team.teamId !== teamTd.getAttribute('data-team-id')){
+                    teamOptions += `<option value="${team.teamId}">${team.teamName}</option>`;
+                }
+            });
+            teamOptions += '</select>';
+            teamTd.innerHTML = teamOptions;
+
+            // role dropdown
+            const currentRole = roleTd.textContent;
+            roleTd.innerHTML = `
+            <select class="border rounded px-1 py-0.5">
+                <option ${currentRole === 'Regular' ? 'selected' : ''}>Regular</option>
+                <option ${currentRole === 'Administrator' ? 'selected' : ''}>Administrator</option>
+            </select>`;
+        } else {
+            usernameTd.textContent = usernameTd.querySelector('input').value;
+            emailTd.textContent = emailTd.querySelector('input').value;
+            teamTd.textContent = teamTd.querySelector('select').selectedOptions[0].textContent;
+            roleTd.textContent = roleTd.querySelector('select').value;
+        }
+    }
+
+    async function updateUser(tr, userId) {
+        const username = tr.querySelector('.username input').value;
+        const email = tr.querySelector('.email input').value;
+        const teamId = tr.querySelector('.team select').value;
+        const role = tr.querySelector('.role select').value;
+
+        const response = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: `
+            mutation UpdateUser {
+                updateUser(userId: "${userId}", teamId: "${teamId}", username: "${username}", email: "${email}", role: "${role}") {
+                    userId
+                }
+            }`
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.data && result.data.updateUser) {
+            alert('User updated successfully.');
+            toggleEditMode(tr, false);
+        } else {
+            alert('Failed to update user.');
+            console.error(result);
+        }
+    }
+
+    async function deleteUser(event) {
+        const userId = event.target.getAttribute("data-user-id");
+        console.log("Deleting user ID:", userId);
+        if (confirm("Are you sure you want to delete this user?")) {
+            try {
+                const response = await fetch('/graphql', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: `
+                    mutation deleteUserById {
+                        deleteUserById(userId: "${userId}") {
+                            success
+                            message
+                        }
+                    }`
+                    })
+                });
+
+                const result = await response.json();
+                if (result.data.deleteUserById.success) {
+                    alert("User deleted successfully.");
+                    location.reload();
+                } else {
+                    alert("Failed to delete user: " + result.data.deleteUserById.message);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
+    function showModal(type) {
+        document.getElementById(type + 'Modal').classList.remove('hidden');
+        document.getElementById(type + 'Modal').classList.add('flex');
+    }
+
+    function closeModal(type) {
+        document.getElementById(type + 'Modal').classList.add('hidden');
+        document.getElementById(type + 'Modal').classList.remove('flex');
+    }
+
+    async function submitCreateUser() {
+        const username = document.getElementById('newUsername').value;
+        const email = document.getElementById('newEmail').value;
+        const teamId = document.getElementById('newTeamId').value;
+        const role = document.getElementById('newRole').value;
+
+        if (!username || !email || !teamId || !role) {
+            alert('Please insert all fields.');
+            return;
+        }
+
+        const response = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: `
+                mutation CreateUser {
+                        createUser(username: "${username}", email: "${email}", teamId: "${teamId}", role: "${role}", password: "bos-semi#1") {
+                            userId teamId username email password role }
+                }`
+            })
+        });
+        const result = await response.json();
+
+        if (result.data && result.data.createUser) {
+            alert(`User ${result.data.createUser.username} created successfully.`);
+            location.reload();
+        } else {
+            alert('Failed to create user.');
+            console.log(result);
+        }
+        closeModal('createUser');
+    }
+
+
+</script>
+
+</body>
+</html>

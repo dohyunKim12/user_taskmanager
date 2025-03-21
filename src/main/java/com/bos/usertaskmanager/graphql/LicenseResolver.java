@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.License;
 import com.bos.usertaskmanager.service.LicenseService;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -46,12 +47,20 @@ public class LicenseResolver {
     }
 
     @MutationMapping
-    public Boolean deleteLicenseById(@Argument String licenseId) {
-        return licenseService.deleteLicense(licenseId);
+    public ResultDto deleteLicenseById(@Argument String licenseId) {
+        if(licenseService.deleteLicense(licenseId)){
+            return new ResultDto(true, "License deleted successfully");
+        } else {
+            return new ResultDto(false, "License not found");
+        }
     }
 
     @MutationMapping
-    public Boolean deleteAllLicenses() {
-        return licenseService.deleteAllLicenses();
+    public ResultDto deleteAllLicenses() {
+        if(licenseService.deleteAllLicenses()){
+            return new ResultDto(true, "All licenses deleted successfully");
+        } else {
+            return new ResultDto(false, "No licenses found");
+        }
     }
 }

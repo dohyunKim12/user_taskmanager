@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.dto.input;
+package com.bos.usertaskmanager.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInDto {
-    private String taskName;
-    private String description;
-    private String status;
+public class ResultDto {
+    private Boolean success;
+    private String message;
 }

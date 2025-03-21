@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.Team;
 import com.bos.usertaskmanager.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,11 @@ public class TeamResolver {
     }
 
     @MutationMapping
-    public Boolean deleteTeam(@Argument String teamId) {
-        return teamService.deleteTeam(teamId);
+    public ResultDto deleteTeam(@Argument String teamId) {
+        if(teamService.deleteTeam(teamId)) {
+            return new ResultDto(true, "Team deleted successfully");
+        } else {
+            return new ResultDto(false, "Team not found");
+        }
     }
 }

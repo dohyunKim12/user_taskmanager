@@ -1,5 +1,8 @@
 package com.bos.usertaskmanager.controller;
 
+import com.bos.usertaskmanager.service.LicenseService;
+import com.bos.usertaskmanager.service.TeamService;
+import com.bos.usertaskmanager.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -8,6 +11,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class ViewController {
+    private final UserService userService;
+    private final TeamService teamService;
+    private final LicenseService licenseService;
+
+    public ViewController(UserService userService, TeamService teamService, LicenseService licenseService) {
+        this.userService = userService;
+        this.teamService = teamService;
+        this.licenseService = licenseService;
+    }
+
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("message", "Welcome to User Task Manager");
@@ -26,8 +39,14 @@ public class ViewController {
 
     @GetMapping("/task/list")
     public String showTaskListPage() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return "task-list";
+    }
 
-            return "task-list";
+    @GetMapping("/admin")
+    public String showAdminPage(Model model) {
+        model.addAttribute("users", userService.getAllUsersInfo());
+        model.addAttribute("teams", teamService.getAllTeams());
+        model.addAttribute("licenses", licenseService.getAllLicenses());
+        return "admin";
     }
 }
