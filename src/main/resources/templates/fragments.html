@@ -56,5 +56,23 @@
     </div>
 </div>
 
+<!-- Create Team Modal -->
+<div th:fragment="createTeamModal">
+    <div id="createTeamModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded shadow-lg p-6 w-[400px]">
+            <h2 class="text-xl font-bold mb-4">Create Team</h2>
+
+            <div class="mb-3">
+                <label class="block text-sm">Team Name</label>
+                <input id="newTeamName" type="text" class="w-full border rounded px-2 py-1">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button onclick="closeModal('createTeam')" class="px-3 py-1 border rounded">Cancel</button>
+                <button onclick="submitCreateTeam()" class="px-3 py-1 bg-black text-white rounded shadow">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

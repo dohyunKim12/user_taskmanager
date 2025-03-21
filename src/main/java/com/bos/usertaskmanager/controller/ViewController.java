@@ -45,7 +45,7 @@ public class ViewController {
     @GetMapping("/admin")
     public String showAdminPage(Model model) {
         model.addAttribute("users", userService.getAllUsersInfo());
-        model.addAttribute("teams", teamService.getAllTeams());
+        model.addAttribute("teams", teamService.getAllTeamsInfo());
         model.addAttribute("licenses", licenseService.getAllLicenses());
         return "admin";
     }

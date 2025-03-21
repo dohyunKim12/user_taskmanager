@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.repository;
 
+import com.bos.usertaskmanager.dto.TeamDto;
 import com.bos.usertaskmanager.model.Team;
 import org.apache.ibatis.annotations.*;
 
@@ -13,6 +14,13 @@ public interface TeamMapper {
             @Result(property = "teamName", column = "team_name")
     })
     List<Team> getAllTeams();
+
+    @Select("SELECT * FROM team t LEFT JOIN TEAM_LICENSE tl ON t.team_id = tl.team_id LEFT JOIN LICENSE l ON tl.license_id = l.license_id")
+    @Results({
+            @Result(property="teamId", column="team_id"),
+            @Result(property="licenseType", column="license_type"),
+    })
+    List<TeamDto> getAllTeamsInfo();
 
     @Select("SELECT * FROM team where team_id = #{id}")
     Team getTeamById(String id);

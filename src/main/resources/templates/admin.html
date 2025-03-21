@@ -94,18 +94,35 @@
             </div>
 
             <div id="teamsTab" class="tab-content hidden">
-                <h3 class="text-xl font-semibold">Team Management</h3>
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-semibold">Team Management</h3>
+                    <button onclick="showModal('createTeam')" class="text-xs px-2 py-0.5 bg-black text-white rounded shadow">
+                        Create
+                    </button>
+                </div>
                 <!-- Team CRUD Table Here -->
                 <table class="w-full bg-white shadow rounded mt-4">
                     <thead class="bg-gray-200">
                     <tr>
                         <th class="p-2">Team ID</th>
                         <th class="p-2">Team Name</th>
+                        <th class="p-2">License Type</th>
                         <th class="p-2">Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr><td class="p-2">1</td><td class="p-2">TeamA</td><td class="p-2">Edit | Delete</td></tr>
+                    <tbody class="text-center">
+                    <tr th:each="team : ${teams}" th:attr="data-team-id=${team.teamId}">
+                        <td class="p-2" th:text="${team.teamId}"></td>
+                        <td class="p-2 teamName" th:text="${team.teamName}"></td>
+                        <td class="p-2 licenseType" th:text="${team.licenseType}"></td>
+                        <td class="p-2">
+                            <button onclick="editTeam(event)"
+                                    class="text-blue-500 hover:text-blue-700">Edit</button>
+                            |
+                            <button onclick="deleteTeam(event)"
+                                    class="text-red-500 hover:text-red-700">Delete</button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -130,6 +147,7 @@
     </div>
     <div th:insert="~{fragments :: loginModal}"></div>
     <div th:insert="~{fragments :: createUserModal}"></div>
+    <div th:insert="~{fragments :: createTeamModal}"></div>
 </div>
 
 <script th:src="@{/js/auth.js}"></script>
@@ -218,18 +236,29 @@
         }
     }
 
-    async function deleteUser(event) {
+    function deleteUser(event) {
         const userId = event.target.getAttribute("data-user-id");
-        console.log("Deleting user ID:", userId);
-        if (confirm("Are you sure you want to delete this user?")) {
+        deleteEntity("User", userId);
+    }
+
+    function deleteTeam(event) {
+        const teamId = event.target.getAttribute("data-team-id");
+        deleteEntity("Team", teamId);
+    }
+
+    async function deleteEntity(entityType, entityId) {
+        const mutationName = `delete${entityType}ById`;
+        const idField = `${entityType.toLowerCase()}Id`;
+
+        if (confirm(`Are you sure you want to delete this ${entityType.toLowerCase()}?`)) {
             try {
                 const response = await fetch('/graphql', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: `
-                    mutation deleteUserById {
-                        deleteUserById(userId: "${userId}") {
+                    mutation {
+                        ${mutationName}(${idField}: "${entityId}") {
                             success
                             message
                         }
@@ -238,14 +267,16 @@
                 });
 
                 const result = await response.json();
-                if (result.data.deleteUserById.success) {
-                    alert("User deleted successfully.");
+                const operationResult = result.data[mutationName];
+
+                if (operationResult.success) {
+                    alert(`${entityType} deleted successfully.`);
                     location.reload();
                 } else {
-                    alert("Failed to delete user: " + result.data.deleteUserById.message);
+                    alert(`Failed to delete ${entityType.toLowerCase()}: ${operationResult.message}`);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(`Error deleting ${entityType.toLowerCase()}:`, error);
             }
         }
     }
@@ -294,6 +325,30 @@
         closeModal('createUser');
     }
 
+    async function submitCreateTeam() {
+        const teamName = document.getElementById('newTeamName').value;
+        const response = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: `
+                mutation CreateTeam {
+                        createTeam(teamName: "${teamName}") {
+                            teamName }
+                }`
+            })
+        });
+        const result = await response.json();
+
+        if (result.data && result.data.createTeam) {
+            alert(`Team ${result.data.createTeam.teamName} created successfully.`);
+            location.reload();
+        } else {
+            alert('Failed to create team.');
+            console.log(result);
+        }
+        closeModal('createTeam');
+    }
 
 </script>
 
