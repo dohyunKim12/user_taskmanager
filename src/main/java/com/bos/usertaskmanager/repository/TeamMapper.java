@@ -15,13 +15,6 @@ public interface TeamMapper {
     })
     List<Team> getAllTeams();
 
-    @Select("SELECT * FROM team t LEFT JOIN TEAM_LICENSE tl ON t.team_id = tl.team_id LEFT JOIN LICENSE l ON tl.license_id = l.license_id")
-    @Results({
-            @Result(property="teamId", column="team_id"),
-            @Result(property="licenseType", column="license_type"),
-    })
-    List<TeamDto> getAllTeamsInfo();
-
     @Select("SELECT * FROM team where team_id = #{id}")
     Team getTeamById(String id);
 
@@ -42,4 +35,8 @@ public interface TeamMapper {
 
     @Delete("DELETE FROM team")
     void deleteAllTeams();
+
+    @Select("SELECT license_type FROM license left join team_license " +
+            "on license.license_id = team_license.license_id where team_id = #{teamId}")
+    List<String> getLicenseTypesByTeamId(String teamId);
 }

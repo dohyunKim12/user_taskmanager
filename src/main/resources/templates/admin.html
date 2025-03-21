@@ -114,7 +114,7 @@
                     <tr th:each="team : ${teams}" th:attr="data-team-id=${team.teamId}">
                         <td class="p-2" th:text="${team.teamId}"></td>
                         <td class="p-2 teamName" th:text="${team.teamName}"></td>
-                        <td class="p-2 licenseType" th:text="${team.licenseType}"></td>
+                        <td class="p-2 licenseType" th:text="${team.licenseTypes}"></td>
                         <td class="p-2">
                             <button onclick="editTeam(event)"
                                     class="text-blue-500 hover:text-blue-700">Edit</button>

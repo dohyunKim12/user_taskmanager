@@ -6,6 +6,7 @@ import com.bos.usertaskmanager.repository.TeamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,7 +25,13 @@ public class TeamService {
     }
 
     public List<TeamDto> getAllTeamsInfo() {
-        return teamMapper.getAllTeamsInfo();
+        List<Team> teams = teamMapper.getAllTeams();
+        List<TeamDto> teamDtos = new ArrayList<>();
+        for(Team team : teams) {
+            List<String> licenseTypes = teamMapper.getLicenseTypesByTeamId(team.getTeamId());
+            teamDtos.add(new TeamDto(team.getTeamId(), team.getTeamName(), licenseTypes));
+        }
+        return teamDtos;
     }
 
     public Team createTeam(Team team) {
