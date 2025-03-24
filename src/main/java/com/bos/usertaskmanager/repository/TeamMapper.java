@@ -33,6 +33,9 @@ public interface TeamMapper {
     @Delete("DELETE FROM team where team_id = #{id}")
     int deleteTeamById(String id);
 
+    @Update("UPDATE team_license SET license_id = (SELECT license_id FROM license WHERE license_type = #{licenseType}) WHERE team_id = #{teamId}")
+    boolean updateTeamLicense(TeamDto teamDto);
+
     @Delete("DELETE FROM team")
     void deleteAllTeams();
 

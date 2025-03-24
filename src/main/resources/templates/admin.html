@@ -112,9 +112,11 @@
                     </thead>
                     <tbody class="text-center">
                     <tr th:each="team : ${teams}" th:attr="data-team-id=${team.teamId}">
-                        <td class="p-2" th:text="${team.teamId}"></td>
+                        <td class="p-2 teamId" th:text="${team.teamId}"></td>
                         <td class="p-2 teamName" th:text="${team.teamName}"></td>
-                        <td class="p-2 licenseType" th:text="${team.licenseTypes}"></td>
+<!--                        <td class="p-2 licenseTypes" th:attr="data-license-types=${team.licenseTypes}" th:text="${team.licenseTypes}"></td>-->
+                        <td class="p-2 licenseTypes" th:attr="data-license-types=${#strings.arrayJoin(team.licenseTypes, ',')}"
+                            th:text="${#strings.arrayJoin(team.licenseTypes, ', ')}"></td>
                         <td class="p-2">
                             <button onclick="editTeam(event)"
                                     class="text-blue-500 hover:text-blue-700">Edit</button>
@@ -161,7 +163,7 @@
         const userId = tr.getAttribute('data-user-id');
 
         if (btn.textContent === 'Edit') {
-            toggleEditMode(tr, true);
+            toggleUserEditMode(tr, true);
             btn.textContent = 'Done';
         } else {
             updateUser(tr, userId);
@@ -169,7 +171,21 @@
         }
     }
 
-    function toggleEditMode(tr, isEditing) {
+    function editTeam(event) {
+        const btn = event.target;
+        const tr = btn.closest('tr');
+        const teamId = tr.getAttribute('data-team-id');
+
+        if (btn.textContent === 'Edit') {
+            toggleTeamEditMode(tr, true);
+            btn.textContent = 'Done';
+        } else {
+            updateTeam(tr, teamId);
+            btn.textContent = 'Edit';
+        }
+    }
+
+    function toggleUserEditMode(tr, isEditing) {
         const usernameTd = tr.querySelector('.username');
         const teamTd = tr.querySelector('.team');
         const emailTd = tr.querySelector('.email');
@@ -206,6 +222,35 @@
         }
     }
 
+    function toggleTeamEditMode(tr, isEditing) {
+        const licenseTypesTd = tr.querySelector('.licenseTypes');
+
+        if (isEditing) {
+            const currentLicenses = licenseTypesTd.getAttribute('data-license-types') ? licenseTypesTd.getAttribute('data-license-types').split(',') : [];
+            let checkboxHtml = '<div class="flex flex-col items-start space-y-1">';
+
+            const licenses = /*[[${licenses}]]*/ [];
+
+            licenses.forEach(license => {
+                const checked = currentLicenses.includes(license.licenseType) ? 'checked' : '';
+                checkboxHtml += `
+                <label class="inline-flex items-center space-x-1">
+                    <input type="checkbox" class="license-checkbox" value="${license.licenseType}" ${checked}>
+                    <span>${license.licenseType}</span>
+                </label>`;
+            });
+
+            checkboxHtml += '</div>';
+            licenseTypesTd.innerHTML = checkboxHtml;
+        } else {
+            const selectedLicenses = Array.from(licenseTypesTd.querySelectorAll('.license-checkbox:checked'))
+                .map(cb => cb.value);
+            licenseTypesTd.textContent = selectedLicenses.join(', ');
+
+            licenseTypesTd.setAttribute('data-license-types', selectedLicenses.join(','));
+        }
+    }
+
     async function updateUser(tr, userId) {
         const username = tr.querySelector('.username input').value;
         const email = tr.querySelector('.email input').value;
@@ -229,10 +274,41 @@
 
         if (result.data && result.data.updateUser) {
             alert('User updated successfully.');
-            toggleEditMode(tr, false);
+            toggleUserEditMode(tr, false);
         } else {
             alert('Failed to update user.');
             console.error(result);
+        }
+    }
+
+    async function updateTeam(tr, teamId) {
+        const licenseTypesTd = tr.querySelector('.licenseTypes');
+        const licenseTypes = Array.from(
+            licenseTypesTd.querySelectorAll('.license-checkbox:checked')
+        ).map(cb => cb.value);
+
+        const response = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: `
+            mutation updateTeamLicense {
+                updateTeamLicense(teamId: "${teamId}", licenseTypes: [${licenseTypes.map(type => `"${type}"`).join(',')}]) {
+                    success
+                    message
+                }
+            }`
+            })
+        });
+
+        const result = await response.json();
+        const operationResult = result.data['updateTeamLicense'];
+
+        if (operationResult.success) {
+            alert(`${teamId} updated successfully.`);
+            location.reload();
+        } else {
+            alert(`Failed to update ${licenseTypes.toLowerCase()}: ${operationResult.message}`);
         }
     }
 

@@ -1,19 +1,30 @@
 package com.bos.usertaskmanager.service;
 
 import com.bos.usertaskmanager.dto.TeamDto;
+import com.bos.usertaskmanager.model.License;
 import com.bos.usertaskmanager.model.Team;
+import com.bos.usertaskmanager.model.TeamLicense;
+import com.bos.usertaskmanager.repository.LicenseMapper;
+import com.bos.usertaskmanager.repository.TeamLicenseMapper;
 import com.bos.usertaskmanager.repository.TeamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class TeamService {
     private final TeamMapper teamMapper;
-    public TeamService(TeamMapper teamMapper) {
+    private final LicenseMapper licenseMapper;
+    private final TeamLicenseMapper teamLicenseMapper;
+
+    public TeamService(TeamMapper teamMapper, LicenseMapper licenseMapper, TeamLicenseMapper teamLicenseMapper) {
         this.teamMapper = teamMapper;
+        this.licenseMapper = licenseMapper;
+        this.teamLicenseMapper = teamLicenseMapper;
     }
 
     public Team getTeamById(String teamId) {
@@ -42,6 +53,24 @@ public class TeamService {
     public Team updateTeam(Team team) {
         teamMapper.updateTeam(team);
         return team;
+    }
+
+    public boolean updateTeamLicense(TeamDto teamDto) {
+        try {
+            teamLicenseMapper.deleteTeamLicenseByTeamId(teamDto.getTeamId());
+            String teamId = teamDto.getTeamId();
+
+            List<String> licenseTypes = teamDto.getLicenseTypes();
+            for (String licenseType : licenseTypes) {
+                License license = licenseMapper.getLicenseByLicenseType(licenseType);
+                TeamLicense teamLicense = new TeamLicense(teamId, license.getLicenseId());
+                teamLicenseMapper.insertTeamLicense(teamLicense);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public boolean deleteTeam(String teamId) {

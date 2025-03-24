@@ -1,6 +1,7 @@
 package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.dto.ResultDto;
+import com.bos.usertaskmanager.dto.TeamDto;
 import com.bos.usertaskmanager.model.Team;
 import com.bos.usertaskmanager.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,18 @@ public class TeamResolver {
         team.setTeamId(teamId);
         team.setTeamName(teamName);
         return teamService.updateTeam(team);
+    }
+
+    @MutationMapping
+    public ResultDto updateTeamLicense(@Argument String teamId,@Argument List<String> licenseTypes) {
+        TeamDto teamDto = new TeamDto();
+        teamDto.setTeamId(teamId);
+        teamDto.setLicenseTypes(licenseTypes);
+        if(teamService.updateTeamLicense(teamDto)) {
+            return new ResultDto(true, "Team license updated successfully");
+        } else {
+            return new ResultDto(false, "Team not found");
+        }
     }
 
     @MutationMapping
