@@ -59,7 +59,7 @@ public class TeamResolver {
     }
 
     @MutationMapping
-    public ResultDto deleteTeam(@Argument String teamId) {
+    public ResultDto deleteTeamById(@Argument String teamId) {
         if(teamService.deleteTeam(teamId)) {
             return new ResultDto(true, "Team deleted successfully");
         } else {

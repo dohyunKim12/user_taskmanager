@@ -117,7 +117,7 @@ type Mutation {
     createTeam(teamName: String!): Team
     updateTeam(teamId: ID!, teamName: String): Team
     updateTeamLicense(teamId: ID!, licenseTypes: [String]): Result
-    deleteTeam(teamId: ID!): Result
+    deleteTeamById(teamId: ID!): Result
 
     createLicense(licenseType: String!, maxVal: Int!, currentVal: Int!): License
     updateLicense(licenseId: ID!, licenseType: String, maxVal: Int, currentVal: Int): License
