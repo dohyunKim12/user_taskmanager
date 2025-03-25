@@ -1,11 +1,9 @@
 package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.dto.ResultDto;
-import com.bos.usertaskmanager.model.TaskFilterInput;
+import com.bos.usertaskmanager.dto.TaskFilterInput;
 import com.bos.usertaskmanager.model.UserTask;
-import com.bos.usertaskmanager.model.UserTaskDetail;
 import com.bos.usertaskmanager.service.UserTaskService;
-import com.bos.usertaskmanager.util.TimeUtils;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;

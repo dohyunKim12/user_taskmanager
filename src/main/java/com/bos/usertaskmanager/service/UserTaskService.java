@@ -1,53 +1,60 @@
 package com.bos.usertaskmanager.service;
 
-import com.bos.usertaskmanager.model.TaskFilterInput;
-import com.bos.usertaskmanager.model.User;
+import com.bos.usertaskmanager.dto.TaskFilterInput;
+import com.bos.usertaskmanager.dto.UserTaskDto;
+import com.bos.usertaskmanager.model.Task;
 import com.bos.usertaskmanager.model.UserTask;
-import com.bos.usertaskmanager.repository.UserMapper;
-import com.bos.usertaskmanager.repository.UserTaskDetailMapper;
+import com.bos.usertaskmanager.repository.TaskMapper;
 import com.bos.usertaskmanager.repository.UserTaskMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserTaskService {
     @Autowired
-    private UserTaskMapper userTaskMapper;
+    private TaskMapper taskMapper;
     @Autowired
-    private UserTaskDetailMapper userTaskDetailMapper;
+    private UserTaskMapper userTaskMapper;
 
-    public UserTask getUserTaskById(String userTaskId) {
-        return userTaskMapper.getUserTaskById(userTaskId);
-    }
-
-    public List<UserTask> getAllUserTasks() {
+    public List<UserTaskDto> getAllUserTasks() {
         return userTaskMapper.getAllUserTasks();
     }
 
-    public List<UserTask> getFilteredUserTasks(TaskFilterInput filters) {
-        return userTaskMapper.getFilteredUserTasks(filters);
+    public UserTaskDto getUserTaskById(String userTaskId) {
+        return userTaskMapper.getUserTaskById(userTaskId);
     }
 
-    public UserTask createUserTask(UserTask userTask) {
-        String userTaskId = userTaskMapper.getNextTaskId();
-        userTask.setUserTaskId(userTaskId);
+//    public List<UserTask> getFilteredUserTasks(TaskFilterInput filters) {
+//        return userTaskMapper.getFilteredUserTasks(filters);
+//    }
+
+    public UserTask createUserTask(UserTask userTask, Task task) {
+        String taskId = taskMapper.getNextTaskId();
+
+        task.setTaskId(taskId);
+        task.setTaskType("user");
+        taskMapper.insertTask(task);
+
+        // UserTask insert
+        userTask.setTaskId(taskId);
         userTaskMapper.insertUserTask(userTask);
-        userTask.getUserTaskDetail().setUserTaskId(userTaskId);
-        userTaskDetailMapper.insertUserTaskDetail(userTask.getUserTaskDetail());
+
         return userTask;
     }
 
-    public UserTask updateUserTask(UserTask userTask) {
+    public UserTaskDto updateUserTask(UserTask userTask, Task task) {
+        taskMapper.updateTaskFields(task);
         userTaskMapper.updateUserTask(userTask);
-        return userTask;
+        return userTaskMapper.getUserTaskById(userTask.getUserTaskId());
     }
 
-    public boolean deleteUserTask(String userTaskId) {
-        return userTaskMapper.deleteUserTaskById(userTaskId) > 0;
+    public boolean deleteUserTask(String userTaskId, String taskId) {
+        int deletedUserTask = userTaskMapper.deleteUserTaskById(userTaskId);
+        int deletedTask = taskMapper.deleteTaskById(taskId);
+        return deletedUserTask > 0 && deletedTask > 0;
     }
 }

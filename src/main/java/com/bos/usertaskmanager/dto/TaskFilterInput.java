@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.model;
+package com.bos.usertaskmanager.dto;
 
 import lombok.*;
 

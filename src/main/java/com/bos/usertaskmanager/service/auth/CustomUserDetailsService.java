@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.service;
+package com.bos.usertaskmanager.service.auth;
 
 import com.bos.usertaskmanager.model.CustomUserDetails;
 import com.bos.usertaskmanager.model.User;

@@ -130,7 +130,6 @@ type Mutation {
     # Currently add userId in this field, but it should be removed in the future(after adding authentication)
     # User info will be retrieved from the Principal object
     createUserTask(userId: ID!, detail: UserTaskDetailInput!): UserTask
-    addBatch(userId: ID!, detail: [UserTaskDetailInput]!): AddBatchOutput
     deleteUserTask(userTaskId: ID!): Result
 #    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
 }

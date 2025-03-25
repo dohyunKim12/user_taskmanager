@@ -6,13 +6,13 @@
 
     <select id="getAllUserTasks" resultMap="UserTaskResultMap">
         SELECT
-            ut.*, u.username, utd.*
+            t.*, u.username, utd.*
         FROM user_task ut
-                 JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
+                 JOIN task t ON ut.task_id = t.task_id
                  JOIN users u ON ut.user_id = u.user_id
     </select>
 
-    <select id="getFilteredUserTasks" resultMap="UserTaskResultMap" parameterType="com.bos.usertaskmanager.model.TaskFilterInput">
+    <select id="getFilteredUserTasks" resultMap="UserTaskResultMap" parameterType="com.bos.usertaskmanager.dto.TaskFilterInput">
         SELECT
         ut.*, u.username, utd.*
         FROM user_task ut
