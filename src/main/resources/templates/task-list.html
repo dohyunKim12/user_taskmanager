@@ -60,8 +60,6 @@
                 <thead>
                 <tr class="text-xs bg-gray-200">
                     <th class="py-2 px-1 w-[4%]">TaskId</th>
-                    <th class="py-2 px-1 w-[4%]">JobId</th>
-                    <th class="py-2 px-1 w-[6%]">ShortCmd</th>
                     <th class="py-2 px-1 w-[4%] relative">
                         <button id="cpuToggle" class="px-1 py-1 bg-gray-300 rounded">CPU</button>
                         <div id="cpuDropdown" class="hidden absolute bg-white border rounded shadow mt-1 z-10"></div>
@@ -197,10 +195,11 @@
         const query = `
         query GetAllUserTasks {
             getAllUserTasks {
-                userTaskId jobId shortCmd userId username submittedAt startedAt endedAt status
-                userTaskDetail { userTaskId command partition licenseType licenseCount directory uuid timelimit requestedCpu requestedMem }
+                userTaskId username directory env description exitCode
+                task { taskId taskType userId requestedCpu requestedMem licenseType licenseCount timelimit command partition status priority submittedAt startedAt endedAt }
             }
-        }`;
+        }
+        `;
 
         const res = await apiFetch('/graphql', {
             method: 'POST',
@@ -209,16 +208,16 @@
         });
 
         const { data } = await res.json();
-        const tasks = data.getAllUserTasks;
+        const userTasks = data.getAllUserTasks;
 
-        tasks.forEach(task => {
-            licenseTypeList.add(task.userTaskDetail.licenseType);
-            partitionList.add(task.userTaskDetail.partition);
-            usernameList.add(task.username);
-            statusList.add(task.status);
+        userTasks.forEach(userTask => {
+            licenseTypeList.add(userTask.task.licenseType);
+            partitionList.add(userTask.task.partition);
+            usernameList.add(userTask.username);
+            statusList.add(userTask.task.status);
         });
 
-        renderTasks(tasks);
+        renderTasks(userTasks);
     }
 
     function statusColor(status) {
@@ -295,11 +294,13 @@
         });
 
         const query = `
-        query FilterTasks($filters: TaskFilterInput) {
-            getFilteredUserTasks(filters: $filters) { userTaskId jobId shortCmd userId username submittedAt startedAt endedAt status
-                userTaskDetail { command partition licenseType licenseCount directory uuid timelimit requestedCpu requestedMem }
+        query GetFilteredUserTasks {
+            getFilteredUserTasks (filters: $filters) {
+                userTaskId username directory env description exitCode
+                task { taskId taskType userId requestedCpu requestedMem licenseType licenseCount timelimit command partition status priority submittedAt startedAt endedAt }
             }
         }`;
+
 
         const res = await apiFetch('/graphql', {
             method: 'POST',
@@ -308,9 +309,9 @@
         });
 
         const {data} = await res.json();
-        const tasks = data.getFilteredUserTasks;
+        const userTasks = data.getFilteredUserTasks;
 
-        renderTasks(tasks);
+        renderTasks(userTasks);
     }
 
     document.getElementById('filtersBtn').addEventListener('click', (e) => {
@@ -332,24 +333,22 @@
         filtersAreOpen = !filtersAreOpen;
     });
 
-    function renderTasks(tasks) {
-        const rows = tasks.map(task => `
+    function renderTasks(userTasks) {
+        const rows = userTasks.map(userTask => `
         <tr>
-            <td class="px-1 py-2">${task.userTaskId}</td>
-            <td class="px-1 py-2">${task.jobId || '-'}</td>
-            <td class="px-1 py-2">${task.shortCmd || '-'}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedCpu}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.requestedMem}</td>
-            <td class="px-1 py-2 break-words whitespace-pre-wrap">${task.userTaskDetail.command}</td>
-            <td class="px-1 py-2">${task.username}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.partition}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.licenseType}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.directory}</td>
-            <td class="px-1 py-2">${task.userTaskDetail.timelimit}</td>
-            <td class="px-1 py-2 font-semibold ${statusColor(task.status)}">${task.status}</td>
-            <td class="px-1 py-2">${task.submittedAt?.replace(/\.\d+$/, '') || '-'}</td>
-            <td class="px-1 py-2">${task.startedAt?.replace(/\.\d+$/, '') || '-'}</td>
-            <td class="px-1 py-2">${task.endedAt?.replace(/\.\d+$/, '') || '-'}</td>
+            <td class="px-1 py-2">${userTask.userTaskId}</td>
+            <td class="px-1 py-2">${userTask.task.requestedCpu}</td>
+            <td class="px-1 py-2">${userTask.task.requestedMem}</td>
+            <td class="px-1 py-2 break-words whitespace-pre-wrap">${userTask.task.command}</td>
+            <td class="px-1 py-2">${userTask.username}</td>
+            <td class="px-1 py-2">${userTask.task.partition}</td>
+            <td class="px-1 py-2">${userTask.task.licenseType}</td>
+            <td class="px-1 py-2">${userTask.directory}</td>
+            <td class="px-1 py-2">${userTask.task.timelimit}</td>
+            <td class="px-1 py-2 font-semibold ${statusColor(userTask.task.status)}">${userTask.task.status}</td>
+            <td class="px-1 py-2">${userTask.task.submittedAt?.replace(/\.\d+$/, '') || '-'}</td>
+            <td class="px-1 py-2">${userTask.task.startedAt?.replace(/\.\d+$/, '') || '-'}</td>
+            <td class="px-1 py-2">${userTask.task.endedAt?.replace(/\.\d+$/, '') || '-'}</td>
         </tr>`
         ).join('');
 

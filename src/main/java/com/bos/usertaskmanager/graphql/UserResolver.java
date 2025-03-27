@@ -3,7 +3,6 @@ package com.bos.usertaskmanager.graphql;
 import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.User;
 import com.bos.usertaskmanager.service.UserService;
-import org.apache.ibatis.annotations.Result;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;

@@ -41,9 +41,8 @@
         <div id="mainContent" class="max-w-3xl mx-auto w-full py-12 px-8">
             <h2 class="text-4xl font-bold mb-8">Add Task</h2>
             <div class="space-y-4">
-                <input id="username" class="border-b w-full py-2 outline-none" placeholder="Username"/>
                 <input id="cpu" type="number" class="border-b w-full py-2 outline-none" placeholder="CPU"/>
-                <input id="memory" class="border-b w-full py-2 outline-none" placeholder="Memory (e.g., 8Gi)"/>
+                <input id="mem" class="border-b w-full py-2 outline-none" placeholder="Memory (e.g., 8Gi)"/>
                 <input id="licenseType" class="border-b w-full py-2 outline-none" placeholder="License Type"/>
                 <input id="licenseCount" type="number" class="border-b w-full py-2 outline-none" placeholder="License Count"/>
                 <input id="partition" class="border-b w-full py-2 outline-none" placeholder="Partition"/>
@@ -80,9 +79,6 @@
     });
 
     async function submitTask() {
-        const graphqlEndpoint = '/graphql';
-        const username = document.getElementById('username').value;
-
         const userQuery = `
             query getUserByUsername($username: String!) {
                 getUserByUsername(username: $username) {
@@ -90,49 +86,53 @@
                 }
             }
         `;
-        const userRes = await apiFetch(graphqlEndpoint, {
+        const userRes = await apiFetch('/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query: userQuery, variables: {username}})
         });
         const userData = await userRes.json();
-        if (userData.errors || !userData.data.getUserByUsername) {
+
+        if(userData.errors || !userData.data.getUserByUsername) {
             alert('User not found!');
             return;
         }
         const userId = userData.data.getUserByUsername.userId;
 
-        const detail = {
-            command: document.getElementById('command').value,
-            licenseType: document.getElementById('licenseType').value,
-            licenseCount: parseInt(document.getElementById('licenseCount').value),
-            directory: document.getElementById('partition').value,
-            uuid: crypto.randomUUID(),
-            timelimit: parseFloat(document.getElementById('timeLimit').value) * parseInt(document.getElementById('timeUnit').value),
-            requestedCpu: parseFloat(document.getElementById('cpu').value),
-            requestedMem: parseFloat(document.getElementById('cpu').value)
-        };
+        const input = {
+            task : {
+                userId: userId,
+                requestedCpu: parseFloat(document.getElementById('cpu').value),
+                requestedMem: parseFloat(document.getElementById('mem').value),
+                licenseType: document.getElementById('licenseType').value,
+                licenseCount: parseInt(document.getElementById('licenseCount').value),
+                timelimit: parseFloat(document.getElementById('timeLimit').value) * parseInt(document.getElementById('timeUnit').value),
+                command: document.getElementById('command').value,
+                partition: document.getElementById('partition').value,
+            },
+            directory : 'test',
+            env: 'test'
+            // description: document.getElementById('description').value || null,
+        }
 
         const mutation = `
-            mutation createUserTask($userId: ID!, $detail: UserTaskDetailInput!) {
-                createUserTask(userId: $userId, detail: $detail) {
-                    userTaskId
-                    status
-                }
+            mutation createUserTask($input: CreateUserTaskInput!) {
+               createUserTask(input: $input)
             }
         `;
 
-        const taskRes = await apiFetch(graphqlEndpoint, {
+        const taskRes = await apiFetch('/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({query: mutation, variables: {userId: userData.data.getUserByUsername.userId, detail}})
+            body: JSON.stringify({query: mutation, variables: {input}})
         });
-        const taskData = await taskRes.json();
+        const {data} = await taskRes.json();
+        const userTaskId = data.createUserTask;
 
-        if(taskData.errors) {
+        if(data.errors) {
             alert('Error: ' + taskData.errors[0].message);
         } else {
-            alert('Task Created: ' + taskData.data.createUserTask.userTaskId);
+            alert('Task Created: ' + userTaskId);
             location.reload();
         }
     }

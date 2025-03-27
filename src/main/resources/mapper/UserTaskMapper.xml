@@ -4,30 +4,41 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bos.usertaskmanager.repository.UserTaskMapper">
 
-    <select id="getAllUserTasks" resultMap="UserTaskResultMap">
+    <select id="getAllUserTasks" resultMap="UserTaskOutResultMap">
         SELECT
-            t.*, u.username, utd.*
+            t.*, u.username, ut.*
         FROM user_task ut
                  JOIN task t ON ut.task_id = t.task_id
-                 JOIN users u ON ut.user_id = u.user_id
+                 JOIN users u ON t.user_id = u.user_id
     </select>
 
-    <select id="getFilteredUserTasks" resultMap="UserTaskResultMap" parameterType="com.bos.usertaskmanager.dto.TaskFilterInput">
+    <select id="getUserTaskById" resultMap="UserTaskOutResultMap" parameterType="String">
         SELECT
-        ut.*, u.username, utd.*
+            t.*, u.username, ut.*
         FROM user_task ut
-        JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
-        JOIN users u ON ut.user_id = u.user_id
+                 JOIN task t ON ut.task_id = t.task_id
+                 JOIN users u ON t.user_id = u.user_id
+        <where>
+            ut.user_task_id = #{userTaskId}
+        </where>
+    </select>
+
+    <select id="getFilteredUserTasks" resultMap="UserTaskOutResultMap" parameterType="com.bos.usertaskmanager.dto.TaskFilterInput">
+        SELECT
+        t.*, u.username, ut.*
+        FROM user_task ut
+        JOIN task t ON ut.task_id = t.task_id
+        JOIN users u ON t.user_id = u.user_id
         <where>
             <if test="sanitizedCpuRange != null and sanitizedCpuRange.size() > 0">
-                utd.requested_cpu IN
+                t.requested_cpu IN
                 <foreach collection="sanitizedCpuRange" item="cpu" open="(" separator="," close=")">
                     #{cpu}
                 </foreach>
             </if>
 
             <if test="cpuOverValue != null and cpuOverValue > 0">
-                OR utd.requested_cpu &gt;= #{cpuOverValue}
+                OR t.requested_cpu &gt;= #{cpuOverValue}
             </if>
 
             <if test="sanitizedMemRange != null and sanitizedMemRange.size() > 0">
@@ -35,11 +46,11 @@
                 <foreach collection="sanitizedMemRange" item="range" separator=" OR ">
                     (
                     <if test="range.minMem != null">
-                        utd.requested_mem &gt;= #{range.minMem}
+                        t.requested_mem &gt;= #{range.minMem}
                     </if>
                     <if test="range.minMem != null and range.maxMem != null"> AND </if>
                     <if test="range.maxMem != null">
-                        utd.requested_mem &lt; #{range.maxMem}
+                        t.requested_mem &lt; #{range.maxMem}
                     </if>
                     )
                 </foreach>
@@ -54,72 +65,73 @@
             </if>
 
             <if test="partitions != null and partitions.size() > 0">
-                AND utd.partition IN
+                AND t.partition IN
                 <foreach collection="partitions" item="partition" open="(" separator="," close=")">
                     #{partition}
                 </foreach>
             </if>
 
             <if test="licenseTypes != null and licenseTypes.size() > 0">
-                AND utd.license_type IN
+                AND t.license_type IN
                 <foreach collection="licenseTypes" item="licenseType" open="(" separator="," close=")">
                     #{licenseType}
                 </foreach>
             </if>
 
             <if test="statuses != null and statuses.size() > 0">
-                AND ut.status IN
+                AND t.status IN
                 <foreach collection="statuses" item="status" open="(" separator="," close=")">
                     #{status}
                 </foreach>
             </if>
 
             <if test="submittedFrom != null and submittedFrom != ''">
-                AND ut.submitted_at &gt;= TO_TIMESTAMP(#{submittedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.submitted_at &gt;= TO_TIMESTAMP(#{submittedFrom}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
             <if test="submittedTo != null and submittedTo != ''">
-                AND ut.submitted_at &lt;= TO_TIMESTAMP(#{submittedTo}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.submitted_at &lt;= TO_TIMESTAMP(#{submittedTo}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
 
             <if test="startedFrom != null and startedFrom != ''">
-                AND ut.started_at &gt;= TO_TIMESTAMP(#{startedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.started_at &gt;= TO_TIMESTAMP(#{startedFrom}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
             <if test="startedTo != null and startedTo != ''">
-                AND ut.started_at &lt;= TO_TIMESTAMP(#{startedTo}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.started_at &lt;= TO_TIMESTAMP(#{startedTo}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
 
             <if test="endedFrom != null and endedFrom != ''">
-                AND ut.ended_at &gt;= TO_TIMESTAMP(#{endedFrom}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.ended_at &gt;= TO_TIMESTAMP(#{endedFrom}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
             <if test="endedTo != null and endedTo != ''">
-                AND ut.ended_at &lt;= TO_TIMESTAMP(#{endedTo}, 'YYYY-MM-DD HH24:MI:SS')
+                AND t.ended_at &lt;= TO_TIMESTAMP(#{endedTo}, 'YYYY-MM-DD HH24:MI:SS')
             </if>
 
         </where>
     </select>
 
-
-    <resultMap id="UserTaskResultMap" type="com.bos.usertaskmanager.model.UserTask">
+    <resultMap id="UserTaskOutResultMap" type="com.bos.usertaskmanager.dto.UserTaskOutDto">
         <result property="userTaskId" column="user_task_id"/>
-        <result property="jobId" column="job_id"/>
-        <result property="shortCmd" column="short_cmd"/>
-        <result property="userId" column="user_id"/>
         <result property="username" column="username"/>
-        <result property="submittedAt" column="submitted_at"/>
-        <result property="startedAt" column="started_at"/>
-        <result property="endedAt" column="ended_at"/>
-        <result property="status" column="status"/>
-        <association property="userTaskDetail" javaType="com.bos.usertaskmanager.model.UserTaskDetail">
-            <result property="userTaskId" column="user_task_id"/>
-            <result property="command" column="command"/>
-            <result property="partition" column="partition"/>
-            <result property="licenseType" column="license_type"/>
-            <result property="licenseCount" column="license_count"/>
-            <result property="directory" column="directory"/>
-            <result property="uuid" column="uuid"/>
-            <result property="timelimit" column="timelimit"/>
+        <result property="directory" column="directory"/>
+        <result property="env" column="env"/>
+        <result property="description" column="description"/>
+        <result property="exitCode" column="exit_code"/>
+        <association property="task" javaType="com.bos.usertaskmanager.dto.TaskOutDto">
+            <result property="taskId" column="task_id"/>
+            <result property="taskType" column="task_type"/>
+            <result property="userId" column="user_id"/>
             <result property="requestedCpu" column="requested_cpu"/>
             <result property="requestedMem" column="requested_mem"/>
+            <result property="licenseType" column="license_type"/>
+            <result property="licenseCount" column="license_count"/>
+            <result property="timelimit" column="timelimit"/>
+            <result property="command" column="command"/>
+            <result property="partition" column="partition"/>
+            <result property="status" column="status"/>
+            <result property="priority" column="priority"/>
+            <result property="submittedAt" column="submitted_at"/>
+            <result property="startedAt" column="started_at"/>
+            <result property="endedAt" column="ended_at"/>
         </association>
     </resultMap>
 

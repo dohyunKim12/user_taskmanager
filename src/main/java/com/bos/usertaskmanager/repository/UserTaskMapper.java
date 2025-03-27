@@ -1,8 +1,7 @@
 package com.bos.usertaskmanager.repository;
 
 import com.bos.usertaskmanager.dto.TaskFilterInput;
-import com.bos.usertaskmanager.dto.UserTaskDto;
-import com.bos.usertaskmanager.model.Task;
+import com.bos.usertaskmanager.dto.UserTaskOutDto;
 import com.bos.usertaskmanager.model.UserTask;
 import org.apache.ibatis.annotations.*;
 
@@ -11,14 +10,14 @@ import java.util.List;
 @Mapper
 public interface UserTaskMapper {
     // GET
-    @Select("""
-        SELECT 
-            t.*, ut.user_task_id, ut.directory, ut.env, ut.description, ut.exit_code
-        FROM user_task ut
-        JOIN task t ON ut.task_id = t.task_id
-        WHERE ut.user_task_id = #{userTaskId}
-    """)
-    UserTaskDto getUserTaskById(@Param("userTaskId") String userTaskId);
+    UserTaskOutDto getUserTaskById(@Param("userTaskId") String userTaskId);
+
+    List<UserTaskOutDto> getAllUserTasks();
+
+    List<UserTaskOutDto> getFilteredUserTasks(TaskFilterInput filterInput);
+
+    @Select("SELECT task_id FROM user_task WHERE user_task_id = #{userTaskId}")
+    String getTaskIdByUserTaskId(String userTaskId);
 
     // INSERT
     @Insert("""
@@ -45,13 +44,9 @@ public interface UserTaskMapper {
     void deleteAllUserTasks();
 
     @Select("SELECT 'UTK-' || LPAD(nextval('user_task_seq')::text, 6, '0')")
-    String getNextTaskId();
+    String getNextUserTaskId();
 
     @UpdateProvider(type = UserTaskSqlProvider.class, method = "updateUserTask")
     void updateUserTask(UserTask userTask);
 
-    // In Mapper.xml
-    List<UserTaskDto> getAllUserTasks();
-
-    List<UserTask> getFilteredUserTasks(TaskFilterInput filterInput);
 }
