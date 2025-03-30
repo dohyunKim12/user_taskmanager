@@ -26,6 +26,10 @@ public class UserService {
         return userMapper.getAllUsers();
     }
 
+    public Object getAllUsersInfoExceptAdmin() {
+        return userMapper.getAllUsersInfoExceptAdmin();
+    }
+
     public List<UserDto> getAllUsersInfo() {
         return userMapper.getAllUsersInfo();
     }
@@ -59,4 +63,6 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);
     }
+
+
 }
