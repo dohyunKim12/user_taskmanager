@@ -67,7 +67,7 @@ CREATE TABLE user_task (
                            user_task_id VARCHAR(10) PRIMARY KEY DEFAULT 'UTK-' || LPAD(nextval('user_task_seq')::TEXT, 6, '0'),
                            task_id VARCHAR(10) NOT NULL UNIQUE,
                            directory VARCHAR(1024) NOT NULL,
-                           env VARCHAR(1024) NOT NULL,
+                           env TEXT NOT NULL,
                            description VARCHAR(1024),
                            exit_code INT,
                            FOREIGN KEY (task_id) REFERENCES task(task_id) ON DELETE CASCADE

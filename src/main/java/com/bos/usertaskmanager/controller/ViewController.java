@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.controller;
 
+import com.bos.usertaskmanager.config.UtmdProperties;
 import com.bos.usertaskmanager.service.LicenseService;
 import com.bos.usertaskmanager.service.TeamService;
 import com.bos.usertaskmanager.service.UserService;
@@ -14,11 +15,13 @@ public class ViewController {
     private final UserService userService;
     private final TeamService teamService;
     private final LicenseService licenseService;
+    private final UtmdProperties utmdProperties;
 
-    public ViewController(UserService userService, TeamService teamService, LicenseService licenseService) {
+    public ViewController(UserService userService, TeamService teamService, LicenseService licenseService, UtmdProperties utmdProperties) {
         this.userService = userService;
         this.teamService = teamService;
         this.licenseService = licenseService;
+        this.utmdProperties = utmdProperties;
     }
 
     @GetMapping("/")
@@ -33,7 +36,12 @@ public class ViewController {
     }
 
     @GetMapping("/task/add/batch")
-    public String showAddTaskBatchForm() {
+    public String showAddTaskBatchForm(Model model) {
+        if (utmdProperties != null && utmdProperties.getIpPortList() != null && !utmdProperties.getIpPortList().isEmpty()) {
+            model.addAttribute("utmdAgentIpPort", utmdProperties.getIpPortList().get(0));
+        } else {
+            model.addAttribute("utmdAgentIpPort", "not configured");
+        }
         return "task-add-batch";
     }
 

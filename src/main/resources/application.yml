@@ -46,3 +46,11 @@ mybatis:
 admin:
   username: admin
   password: admin
+
+utmd-agent:
+  ip-port-list: # List of IP and port of all UTMD agents(Same as login server now, but should be compute nodes IP in future)
+    - 192.128.20.241:8000
+    - 192.128.1.104:8000
+    - 192.128.1.106:8000
+    - 192.128.1.107:8000
+    - 192.128.1.108:8000

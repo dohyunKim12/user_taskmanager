@@ -34,13 +34,6 @@ public class UserService {
         return userMapper.getAllUsersInfo();
     }
 
-//    public User createUser(User user) {
-//        logger.info("Creating user: " + user);
-//        userMapper.insertUser(user);
-//        logger.info("User created: " + user);
-//        return user;  // Return the user with the ID populated after insertion
-//    }
-//
     public User createUser(User user) {
         userMapper.insertUser(user);
         return userMapper.getUserByUsername(user.getUsername());
@@ -63,6 +56,4 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);
     }
-
-
 }
