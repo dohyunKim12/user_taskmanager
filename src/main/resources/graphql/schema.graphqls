@@ -27,6 +27,13 @@ type TeamLicense {
     licenseId: String!
 }
 
+enum PriorityTier {
+    URGENT
+    HIGH
+    NORMAL
+    LOW
+}
+
 type Task {
     taskId: ID!
     taskType: String
@@ -40,6 +47,7 @@ type Task {
     partition: String!
     status: String!
     priority: Float
+    priorityTier: PriorityTier
     submittedAt: String
     startedAt: String
     endedAt: String
@@ -78,6 +86,7 @@ input TaskInput {
     partition: String!
     status: String  # 'pending', 'running', 'completed', 'cancelled', 'failed', 'preempted'
     priority: Float
+    priorityTier: PriorityTier
     submittedAt: String
     startedAt: String
     endedAt: String

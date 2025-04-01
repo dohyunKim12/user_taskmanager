@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.dto;
 
+import com.bos.usertaskmanager.constant.PriorityTier;
 import lombok.*;
 
 @Getter
@@ -16,6 +17,7 @@ public class TaskInput {
     private String command;
     private String partition;
     private Float priority;
+    private PriorityTier priorityTier = PriorityTier.NORMAL;
     private String status;
     private String startedAt;
     private String endedAt;

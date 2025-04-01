@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.dto;
 
+import com.bos.usertaskmanager.constant.PriorityTier;
 import lombok.*;
 
 @Getter
@@ -20,6 +21,7 @@ public class TaskOutDto {
     private String partition;
     private String status;
     private Float priority;
+    private PriorityTier priorityTier;
     private String submittedAt;
     private String startedAt;
     private String endedAt;

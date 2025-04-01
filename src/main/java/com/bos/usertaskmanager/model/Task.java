@@ -1,5 +1,6 @@
 package com.bos.usertaskmanager.model;
 
+import com.bos.usertaskmanager.constant.PriorityTier;
 import com.bos.usertaskmanager.dto.TaskInput;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Task {
     private String partition;
     private String status;
     private Float priority;
+    private PriorityTier priorityTier;
     private Timestamp submittedAt;
     private Timestamp startedAt;
     private Timestamp endedAt;
@@ -40,6 +42,7 @@ public class Task {
         task.setCommand(input.getCommand());
         task.setPartition(input.getPartition());
         task.setPriority(input.getPriority() != null ? input.getPriority() : 0.0f);
+        task.setPriorityTier(input.getPriorityTier() != null ? input.getPriorityTier() : PriorityTier.NORMAL);
 
         return task;
     }
