@@ -27,17 +27,82 @@ type TeamLicense {
     licenseId: String!
 }
 
-type UserTask {
-    userTaskId: ID!
-    jobId: Int
-    shortCmd: String
-    userId: String!
-    username: String
-    submittedAt: String!
+enum PriorityTier {
+    URGENT
+    HIGH
+    NORMAL
+    LOW
+}
+
+type Task {
+    taskId: ID!
+    taskType: String
+    userId: ID!
+    requestedCpu: Float!
+    requestedMem: Float!
+    licenseType: String
+    licenseCount: Int
+    timelimit: Float!
+    command: String!
+    partition: String!
+    status: String!
+    priority: Float
+    priorityTier: PriorityTier
+    submittedAt: String
     startedAt: String
     endedAt: String
-    status: String!
-    userTaskDetail: UserTaskDetail!
+}
+
+type UserTask {
+    userTaskId: ID!
+    username: String
+    task: Task
+    directory: String!
+    env: String!
+    description: String
+    exitCode: Int
+}
+
+type SystemTask {
+    systemTaskId: ID!
+    task: Task
+    systemType: String
+    config: String
+}
+
+type Result {
+    success: Boolean
+    message: String
+}
+
+input TaskInput {
+    userId: String
+    requestedCpu: Float!
+    requestedMem: Float!
+    licenseType: String
+    licenseCount: Int
+    timelimit: Float!
+    command: String!
+    partition: String!
+    status: String  # 'pending', 'running', 'completed', 'cancelled', 'failed', 'preempted'
+    priority: Float
+    priorityTier: PriorityTier
+    submittedAt: String
+    startedAt: String
+    endedAt: String
+}
+
+input CreateUserTaskInput {
+    task: TaskInput!
+    directory: String!
+    env: String!
+    description: String
+}
+
+input CreateSystemTaskInput {
+    task: TaskInput!
+    systemType: String!
+    config: String!  # JSON → String
 }
 
 type AddBatchOutput {
@@ -46,30 +111,7 @@ type AddBatchOutput {
     permissionDenied: [String]
 }
 
-input UserTaskDetailInput {
-    command: String!
-    partition: String!
-    licenseType: String!
-    licenseCount: Int!
-    directory: String
-    uuid: String!
-    timelimit: Float!
-    requestedCpu: Float!
-    requestedMem: Float!
-}
 
-type UserTaskDetail {
-    userTaskId: ID!
-    command: String!
-    partition: String!
-    licenseType: String!
-    licenseCount: Int!
-    directory: String
-    uuid: String!
-    timelimit: Float!
-    requestedCpu: Float!
-    requestedMem: Float!
-}
 
 input TaskFilterInput {
     statuses: [String]
@@ -84,11 +126,6 @@ input TaskFilterInput {
     startedTo: String
     endedFrom: String
     endedTo: String
-}
-
-type Result {
-    success: Boolean
-    message: String
 }
 
 # Query types
@@ -127,10 +164,9 @@ type Mutation {
     assignLicenseToTeam(teamId: ID!, licenseId: ID!): TeamLicense
     removeLicenseFromTeam(teamId: ID!, licenseId: ID!): Result
 
-    # Currently add userId in this field, but it should be removed in the future(after adding authentication)
-    # User info will be retrieved from the Principal object
-    createUserTask(userId: ID!, detail: UserTaskDetailInput!): UserTask
-    addBatch(userId: ID!, detail: [UserTaskDetailInput]!): AddBatchOutput
+    createUserTask(input: CreateUserTaskInput!): String
+    createSystemTask(input: CreateSystemTaskInput!): SystemTask
+
     deleteUserTask(userTaskId: ID!): Result
 #    updateUserTask(userTaskId: ID!, jobId: Int, shortCmd: String, userId: ID, submittedAt: String, startedAt: String, endedAt: String, status: String): UserTask
 }

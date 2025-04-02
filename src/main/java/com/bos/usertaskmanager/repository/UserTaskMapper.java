@@ -1,6 +1,7 @@
 package com.bos.usertaskmanager.repository;
 
-import com.bos.usertaskmanager.model.TaskFilterInput;
+import com.bos.usertaskmanager.dto.TaskFilterInput;
+import com.bos.usertaskmanager.dto.UserTaskOutDto;
 import com.bos.usertaskmanager.model.UserTask;
 import org.apache.ibatis.annotations.*;
 
@@ -9,55 +10,25 @@ import java.util.List;
 @Mapper
 public interface UserTaskMapper {
     // GET
-    @Select("SELECT * FROM user_task")
-    List<UserTask> findAll();
+    UserTaskOutDto getUserTaskById(@Param("userTaskId") String userTaskId);
 
-    @Select("SELECT * FROM user_task where user_task_id = #{userTaskId}")
-    UserTask getUserTaskById(@Param("userTaskId") String userTaskId);
+    List<UserTaskOutDto> getAllUserTasks();
 
-    @Select("""
-        SELECT ut.* FROM user_task ut
-        JOIN users u ON ut.user_id = u.user_id
-        WHERE u.username = #{username}
-    """)
-    List<UserTask> getUserTaskListByUsername(String username);
+    List<UserTaskOutDto> getFilteredUserTasks(TaskFilterInput filterInput);
 
-    @Select("SELECT * FROM user_task where status = #{status}")
-    List<UserTask> getUserTaskListByStatus(@Param("status") String status);
-
-    @Select("""
-        SELECT ut.* FROM user_task ut
-        JOIN user_task_detail utd ON ut.user_task_id = utd.user_task_id
-        WHERE utd.license_type = #{licenseType}
-    """)
-    List<UserTask> getUserTaskListByLicenseType(@Param("licenseType") String licenseType);
-
-    // get user task from submitted_at to
-    @Select("""
-        SELECT * FROM user_task 
-        WHERE submitted_at >= #{from} AND submitted_at <= #{to}
-    """)
-    List<UserTask> getUserTaskListBySubmittedAt(@Param("from") String from, @Param("to") String to);
-
+    @Select("SELECT task_id FROM user_task WHERE user_task_id = #{userTaskId}")
+    String getTaskIdByUserTaskId(String userTaskId);
 
     // INSERT
     @Insert("""
-        INSERT INTO user_task (user_task_id, user_id, submitted_at, status) 
-        VALUES (#{userTask.userTaskId}, #{userTask.userId}, #{userTask.submittedAt}, 'pending') 
+        INSERT INTO user_task (task_id, directory, env, description, exit_code)
+        VALUES (
+            #{userTask.taskId}, #{userTask.directory},
+            #{userTask.env}, #{userTask.description}, #{userTask.exitCode}
+        )
     """)
     void insertUserTask(@Param("userTask") UserTask userTask);
 
-    // UPDATE
-    @Update("""
-       UPDATE user_task 
-       SET 
-           status = COALESCE(#{userTask.status}, status), 
-           started_at = COALESCE(#{userTask.startedAt}, started_at), 
-           ended_at = COALESCE(#{userTask.endedAt}, ended_at), 
-           job_id = COALESCE(#{userTask.jobId}, job_id)
-       WHERE user_task_id = #{userTask.userTaskId}
-   """)
-    void updateUserTask(UserTask userTask);
 
     // Delete
     @Delete("""
@@ -73,9 +44,9 @@ public interface UserTaskMapper {
     void deleteAllUserTasks();
 
     @Select("SELECT 'UTK-' || LPAD(nextval('user_task_seq')::text, 6, '0')")
-    String getNextTaskId();
+    String getNextUserTaskId();
 
-    List<UserTask> getAllUserTasks();
+    @UpdateProvider(type = UserTaskSqlProvider.class, method = "updateUserTask")
+    void updateUserTask(UserTask userTask);
 
-    List<UserTask> getFilteredUserTasks(TaskFilterInput filterInput);
 }

@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.model;
+package com.bos.usertaskmanager.dto;
 
 import lombok.*;
 
@@ -6,12 +6,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class UserTask {
-    private String userTaskId;
-    private String taskId;
+public class CreateUserTaskInput {
+    private TaskInput task;
     private String directory;
     private String env;
     private String description;
-    private Integer exitCode;
 }

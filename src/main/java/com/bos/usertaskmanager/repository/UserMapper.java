@@ -15,6 +15,10 @@ public interface UserMapper {
             "ORDER BY team.team_id, users.user_id")
     List<UserDto> getAllUsersInfo();
 
+    @Select("SELECT * FROM users LEFT JOIN team ON users.team_id = team.team_id " +
+            "WHERE LOWER(users.username) != 'admin' ORDER BY team.team_id, users.user_id")
+    List<UserDto> getAllUsersInfoExceptAdmin();
+
     @Select("SELECT * FROM users where user_id = #{id}")
     User getUserById(String id);
 
@@ -41,4 +45,7 @@ public interface UserMapper {
 
     @Delete("DELETE FROM users")
     void deleteAllUsers();
+
+    @Select("SELECT EXISTS(SELECT 1 FROM users WHERE username = #{username})")
+    boolean existsByUsername(String username);
 }

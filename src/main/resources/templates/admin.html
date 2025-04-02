@@ -41,7 +41,7 @@
         <a href="/task/add/batch" class="block py-2 px-3 rounded hover:bg-gray-600">Add Tasks (Batch)</a>
         <a href="/task/list" class="block py-2 px-3 rounded hover:bg-gray-600">View Tasks</a>
         <a href="/task/details" class="block py-2 px-3 rounded hover:bg-gray-600">Task Details</a>
-        <a href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
+        <a th:if="${isAdmin}" href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
     </div>
     <!-- Main Page -->
     <div class="flex-1 flex flex-col">

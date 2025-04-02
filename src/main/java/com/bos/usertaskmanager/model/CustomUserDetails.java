@@ -7,6 +7,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Custom implementation of {@link UserDetails} containing essential user information
+ * required during authentication and authorization.
+ *
+ * On the initial login, retrieves user authority information from the database and stores
+ * it within the JWT claims for stateless authentication.
+ *
+ * @author dohyunkim
+ * @see org.springframework.security.core.userdetails.UserDetails
+ */
 public class CustomUserDetails implements UserDetails {
     private final User userInfo;
 
@@ -14,11 +24,15 @@ public class CustomUserDetails implements UserDetails {
         this.userInfo = userInfo;
     }
 
-    // 최초 로그인 시 JWT를 생성하는 과정에서 한번 호출되어 DB에서 권한정보를 얻음.
-    // 이후 이 권한정보를 JWT 토큰의 Claims 에 저장.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority(userInfo.getRole())); // userInfo에서 실제 권한 리턴
+        if (userInfo.getRole().equals("ADMIN")) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        } else if (userInfo.getRole().equals("Administrator")) {
+            return List.of(new SimpleGrantedAuthority("ROLE_Administrator"));
+        } else if (userInfo.getRole().equals("Regular")) {
+            return List.of(new SimpleGrantedAuthority("ROLE_User"));
+        }
         return List.of();
     }
 

@@ -26,17 +26,14 @@ public class UserService {
         return userMapper.getAllUsers();
     }
 
+    public Object getAllUsersInfoExceptAdmin() {
+        return userMapper.getAllUsersInfoExceptAdmin();
+    }
+
     public List<UserDto> getAllUsersInfo() {
         return userMapper.getAllUsersInfo();
     }
 
-//    public User createUser(User user) {
-//        logger.info("Creating user: " + user);
-//        userMapper.insertUser(user);
-//        logger.info("User created: " + user);
-//        return user;  // Return the user with the ID populated after insertion
-//    }
-//
     public User createUser(User user) {
         userMapper.insertUser(user);
         return userMapper.getUserByUsername(user.getUsername());

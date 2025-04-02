@@ -76,4 +76,14 @@ public class TeamService {
     public boolean deleteTeam(String teamId) {
         return teamMapper.deleteTeamById(teamId) > 0;
     }
+
+    public TeamLicense assignLicenseToTeam(String teamId, String licenseId) {
+        TeamLicense teamLicense = new TeamLicense(teamId, licenseId);
+        teamLicenseMapper.insertTeamLicense(teamLicense);
+        return teamLicense;
+    }
+
+    public boolean removeLicenseFromTeam(String teamId, String licenseId) {
+        return teamLicenseMapper.deleteTeamLicenseByTeamIdAndLicenseId(teamId, licenseId);
+    }
 }

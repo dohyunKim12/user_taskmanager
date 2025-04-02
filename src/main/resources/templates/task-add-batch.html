@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Add Tasks Batch - User Task Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsTree 관련 CSS/JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jstree/dist/themes/default/style.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstree/dist/jstree.min.js"></script>
 </head>
 <body class="bg-gray-100">
 <nav class="bg-black text-white py-4 px-16 font-bold flex justify-between">
@@ -33,7 +37,7 @@
         <a href="/task/add/batch" class="block py-2 px-3 rounded hover:bg-gray-600">Add Tasks (Batch)</a>
         <a href="/task/list" class="block py-2 px-3 rounded hover:bg-gray-600">View Tasks</a>
         <a href="/task/details" class="block py-2 px-3 rounded hover:bg-gray-600">Task Details</a>
-        <a href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
+        <a th:if="${isAdmin}" href="/admin" class="block py-2 px-3 rounded hover:bg-gray-600">Admin Page</a>
     </div>
     <!-- Main Page -->
     <div class="flex-1 flex flex-col">
@@ -56,6 +60,7 @@
                     <th class="py-2 px-2 w-[8%]">Partition</th>
                     <th class="py-2 px-2 w-[10%]">Time Limit</th>
                     <th class="py-2 px-2">Command</th>
+                    <th class="py-2 px-2 w-[8%]">Directory</th>
                     <th class="py-2 px-2 w-[8%]">Actions</th>
                     <th class="py-2 px-2 w-[10%]">Result (TaskID)</th>
                 </tr>
@@ -81,8 +86,11 @@
                     <td class="text-xs py-2 px-2"> <!-- Command -->
                         <textarea class="border py-2 px-2 w-full outline-none resize-y"
                                   rows="1"
-                                  oninput="autoResize(this)"
+                                  oninput="autoResizeTextarea(this)"
                                   placeholder="Enter command"></textarea>
+                    </td>
+                    <td class="text-sm text-center space-x-2"> <!-- Directory -->
+                        <button class="directory-select-btn bg-gray-800 text-white px-2 rounded hover:bg-gray-700" onclick="openDirectoryModal(this)">Select</button>
                     </td>
                     <td class="text-sm text-center space-x-2"> <!-- Actions -->
                         <button class="text-blue-500" onclick="copyRow(this)">Copy</button>
@@ -101,12 +109,19 @@
         </div>
     </div>
     <div th:insert="~{fragments :: loginModal}"></div>
+    <div th:insert="~{fragments :: dirModal}"></div>
 </div>
 
 <script th:src="@{/js/auth.js}"></script>
 <script th:inline="javascript">
     let isLoggedIn = /*[[${isLoggedIn}]]*/ false;
     let username = /*[[${username}]]*/ null;
+
+    let directoryTreeData = null;
+    let selectedPath = "";
+    let selectedButton = null;
+    let userEnv = null;
+    fetchEnvDir(username)
 
     document.getElementById("mainContent").addEventListener('click', async function(event) {
         if (!isLoggedIn) {
@@ -130,6 +145,75 @@
         updateRowNumbers();
     }
 
+    function openDirectoryModal(buttonElement) {
+        const modal = document.getElementById("dirModal");
+        if (!modal) {
+            console.error("dirModal element not found");
+            return;
+        }
+        selectedButton = buttonElement;
+        modal.classList.remove("hidden");
+        if (!directoryTreeData) {
+            console.error("No directory tree data loaded.");
+            return;
+        }
+
+        $('#workspace-tree').jstree("destroy").jstree({
+            core: { data: directoryTreeData }
+        });
+
+        $('#workspace-tree').on("select_node.jstree", function (e, data) {
+            selectedPath = data.node.original.path;
+        });
+    }
+
+    function closeDirectoryModal() {
+        const modal = document.getElementById("dirModal");
+        modal.classList.add("hidden");
+        selectedPath = "";
+    }
+
+    function confirmDirectory() {
+        if (selectedPath && selectedButton) {
+            selectedButton.textContent = selectedPath;
+            selectedButton.dataset.selectedPath = selectedPath;
+        }
+        closeDirectoryModal();
+    }
+
+    function convertToJsTree(node) {
+        return {
+            text: node.name,
+            path: node.path,
+            children: (node.children || []).map(convertToJsTree)
+        };
+    }
+
+    async function fetchEnvDir(username) {
+        const utmdAgentIpPort = /*[[${utmdAgentIpPort}]]*/ null;
+
+        if (!utmdAgentIpPort) {
+            alert('UTMD Agent IP:Port not configured!');
+            return;
+        }
+        const url = `http://${utmdAgentIpPort}/api/envdir/get?username=${username}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            userEnv = data.user_env;
+            directoryTreeData = convertToJsTree(data.workspace_directory_tree);
+            console.log("USER ENV:", userEnv);
+            console.log("Directory Tree:", directoryTreeData);
+
+        } catch (error) {
+            console.error("Error fetching envdir:", error);
+        }
+    }
 
     function deleteRow(btn) {
         const row = btn.parentElement.parentElement;
@@ -172,7 +256,6 @@
     }
 
     async function submitTasks() {
-        const graphqlEndpoint = '/graphql';
         const userQuery = `
             query getUserByUsername($username: String!) {
                 getUserByUsername(username: $username) {
@@ -180,7 +263,7 @@
                 }
             }
         `;
-        const userRes = await apiFetch(graphqlEndpoint, {
+        const userRes = await apiFetch('/graphql', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({query: userQuery, variables: {username}})
@@ -200,44 +283,46 @@
                 continue;
             }
 
-            const detail = {
-                command: commandInput.value,
-                partition: row.children[5].querySelector('input').value,
-                licenseType: row.children[3].querySelector('input').value,
-                licenseCount: parseInt(row.children[4].querySelector('input').value),
-                // directory: row.children[5].querySelector('input').value,
-                uuid: crypto.randomUUID(),
-                timelimit: parseInt(row.children[6].querySelector('input[type=number]').value) *
-                    parseInt(row.children[6].querySelector('select').value),
-                requestedCpu: parseFloat(row.children[1].querySelector('input').value),
-                requestedMem: convertToMB(row.children[2].querySelector('input').value)
-            };
+            const selectButton = row.querySelector('.directory-select-btn');
+            const selectedDirectory = selectButton?.dataset?.selectedPath || "not selected";
+
+            const input = {
+                task : {
+                    userId: userId,
+                    requestedCpu: parseFloat(row.children[1].querySelector('input').value),
+                    requestedMem: convertToMB(row.children[2].querySelector('input').value),
+                    licenseType: row.children[3].querySelector('input').value,
+                    licenseCount: parseInt(row.children[4].querySelector('input').value),
+                    partition: row.children[5].querySelector('input').value,
+                    timelimit: parseInt(row.children[6].querySelector('input[type=number]').value) *
+                        parseInt(row.children[6].querySelector('select').value),
+                    command: commandInput.value,
+                },
+                directory: selectedDirectory,
+                env: JSON.stringify(userEnv)
+                // description: document.getElementById('description').value || null,
+            }
 
             const mutation = `
-                mutation createUserTask($userId: ID!, $detail: UserTaskDetailInput!) {
-                    createUserTask(userId: $userId, detail: $detail) {
-                        userTaskId
-                    }
+                mutation createUserTask($input: CreateUserTaskInput!) {
+                    createUserTask(input: $input)
                 }
             `;
-
-            const taskRes = await apiFetch(graphqlEndpoint, {
+            const taskRes = await apiFetch('/graphql', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    query: mutation,
-                    variables: {userId, detail}
-                })
+                body: JSON.stringify({query: mutation, variables: {input}})
             });
-            const taskData = await taskRes.json();
-            console.log('taskData:', taskData);
-            if (taskData.errors) {
+            const {data} = await taskRes.json();
+            const userTaskId = data.createUserTask;
+            // const taskData = await taskRes.json();
+            console.log('data:', data);
+            if (data.errors) {
                 resultCell.innerHTML = `<span class="text-red-500 font-semibold">Failed</span>`;
             } else {
-                const taskId = taskData.data.createUserTask.userTaskId;
                 resultCell.innerHTML = `
                     <span class="text-green-600 font-semibold">Success<br/></span>
-                    <span class="text-gray-400 text-sm">(${taskId})</span>
+                    <span class="text-gray-400 text-sm">(${userTaskId})</span>
                 `;
 
                 row.querySelectorAll('input, select').forEach(input => {
@@ -317,6 +402,9 @@
         <textarea class="border py-2 px-2 w-full outline-none resize-y"
                   rows="1"
                   oninput="autoResizeTextarea(this)">${trimmedCmd}</textarea>
+    </td>
+    <td class="text-sm text-center space-x-2">
+        <button class="directory-select-btn bg-gray-800 text-white px-2 rounded hover:bg-gray-700" onclick="openDirectoryModal(this)">Select</button>
     </td>
     <td class="text-center space-x-2">
         <button class="text-blue-500" onclick="copyRow(this)">Copy</button>

@@ -1,7 +1,7 @@
 package com.bos.usertaskmanager.config;
 
 import com.bos.usertaskmanager.filter.JwtAuthenticationFilter;
-import com.bos.usertaskmanager.service.CustomUserDetailsService;
+import com.bos.usertaskmanager.service.auth.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

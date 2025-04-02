@@ -1,39 +1,43 @@
 package com.bos.usertaskmanager.graphql;
 
+import com.bos.usertaskmanager.dto.CreateUserTaskInput;
 import com.bos.usertaskmanager.dto.ResultDto;
-import com.bos.usertaskmanager.model.TaskFilterInput;
+import com.bos.usertaskmanager.dto.TaskFilterInput;
+import com.bos.usertaskmanager.dto.UserTaskOutDto;
+import com.bos.usertaskmanager.model.Task;
 import com.bos.usertaskmanager.model.UserTask;
-import com.bos.usertaskmanager.model.UserTaskDetail;
+import com.bos.usertaskmanager.repository.TaskMapper;
 import com.bos.usertaskmanager.service.UserTaskService;
-import com.bos.usertaskmanager.util.TimeUtils;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
 public class UserTaskResolver {
     private final UserTaskService userTaskService;
-    public UserTaskResolver(UserTaskService userTaskService) {
+    private final TaskMapper taskMapper;
+
+    public UserTaskResolver(UserTaskService userTaskService, TaskMapper taskMapper) {
         this.userTaskService = userTaskService;
+        this.taskMapper = taskMapper;
     }
 
     @QueryMapping
-    public UserTask getUserTask(@Argument String userTaskId) {
+    public UserTaskOutDto getUserTask(@Argument String userTaskId) {
         return userTaskService.getUserTaskById(userTaskId);
     }
 
     @QueryMapping
-    public List<UserTask> getAllUserTasks() {
+    public List<UserTaskOutDto> getAllUserTasks() {
         return userTaskService.getAllUserTasks();
     }
 
     @QueryMapping
-    public List<UserTask> getFilteredUserTasks(@Argument TaskFilterInput filters) {
+    public List<UserTaskOutDto> getFilteredUserTasks(@Argument TaskFilterInput filters) {
         if(filters != null) {
             filters.sanitize();
         }
@@ -42,14 +46,10 @@ public class UserTaskResolver {
 
 
     @MutationMapping
-    public UserTask createUserTask(@Argument String userId, @Argument UserTaskDetail detail) {
-        UserTask userTask = new UserTask();
-        userTask.setUserId(userId);
-        userTask.setStatus("pending");
-        userTask.setSubmittedAt(Timestamp.valueOf(LocalDateTime.now()));
-        userTask.setUserTaskDetail(detail);
-        return userTaskService.createUserTask(userTask);
+    public String createUserTask(@Argument CreateUserTaskInput input) {
+        return userTaskService.createUserTask(input);
     }
+
 
     @MutationMapping
     public ResultDto deleteUserTask(@Argument String userTaskId) {
@@ -59,4 +59,9 @@ public class UserTaskResolver {
             return new ResultDto(false, "User Task not found");
         }
     }
+
+//    @SchemaMapping(typeName = "UserTask", field = "task")
+//    public Task resolveTask(UserTaskOutDto userTask) {
+//        return taskMapper.getTaskById(userTask.getTask().getTaskId());
+//    }
 }
