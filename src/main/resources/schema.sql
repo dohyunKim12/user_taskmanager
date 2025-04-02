@@ -57,7 +57,7 @@ CREATE TABLE task (
                       command VARCHAR(1024) NOT NULL,
                       partition VARCHAR(255) NOT NULL,
                       status VARCHAR(255) NOT NULL CHECK (status IN ('pending', 'running', 'completed', 'cancelled', 'failed', 'preempted')),
-                      priority_tier priority_tier_enum NOT NULL DEFAULT 'normal',
+                      priority_tier priority_tier_enum NOT NULL DEFAULT 'NORMAL',
                       priority FLOAT NOT NULL,
                       submitted_at TIMESTAMP,
                       started_at TIMESTAMP,
