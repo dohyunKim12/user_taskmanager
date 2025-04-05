@@ -4,6 +4,7 @@ import com.bos.usertaskmanager.dto.MakeShortUrlInDto;
 import com.bos.usertaskmanager.dto.MakeShortUrlOutDto;
 import com.bos.usertaskmanager.service.UrlService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class UrlController {
 
 
     @PostMapping("/short-url")
-    public MakeShortUrlOutDto makeShortUrl(@RequestBody MakeShortUrlInDto dto) {
+    public MakeShortUrlOutDto makeShortUrl(@Valid @RequestBody MakeShortUrlInDto dto) {
         return urlService.makeShortUrl(dto);
     }
 }

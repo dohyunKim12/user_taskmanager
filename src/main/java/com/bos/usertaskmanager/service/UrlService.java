@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UrlService {
+    Logger logger = LoggerFactory.getLogger(UrlService.class);
+
     @Autowired
     private CacheManager cacheManager;
 
@@ -38,9 +40,6 @@ public class UrlService {
         this.self = self;
         this.urlStatsService = urlStatsService;
     }
-
-    Logger logger = LoggerFactory.getLogger(UrlService.class);
-    Map<String, String> urlMap = new HashMap<>();
 
     @CachePut(value = "urlCache", key = "#shortCode")
     public String cacheOriginalUrl(String shortCode, String originalUrl) {
