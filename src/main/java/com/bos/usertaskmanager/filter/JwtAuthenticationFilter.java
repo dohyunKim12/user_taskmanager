@@ -20,6 +20,15 @@ import java.util.List;
 
 import static com.bos.usertaskmanager.constant.UtmConstant.SYSTEM_API_KEY;
 
+/**
+ * JwtAuthenticationFilter is a filter that checks for JWT tokens in the request.
+ *
+ * It validates the token and sets the authentication in the security context.
+ * It also checks for a system API key in the request header.
+ *
+ * @author dohyunkim
+ */
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
