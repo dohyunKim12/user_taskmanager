@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.2'
+    id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -23,33 +23,41 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web:3.4.2'
-    implementation 'org.springframework.boot:spring-boot-starter-security:3.4.2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.4.2'
-    runtimeOnly 'org.postgresql:postgresql:42.7.5'
-    // kafka
-    implementation 'org.springframework.kafka:spring-kafka:3.3.2'
-    // lombok
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // PostgreSQL JDBC (Spring Boot BOM Managed)
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    // mybatis
-//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.2'
+
+    // Mybatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
-    // graphql
-//    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:11.0.0'
-//    implementation 'com.graphql-java-kickstart:playground-spring-boot-starter:7.1.0'
-//    implementation 'com.graphql-java-kickstart:graphql-java-tools:11.0.0'
-    implementation 'org.springframework.boot:spring-boot-starter-graphql:3.4.2'
-    // actuator
-    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.2'
-    // logger
+
+    // Graphql
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Logging
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.24.3'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.4.2'
+
+    // Thymleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 }
 
 configurations {
