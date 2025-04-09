@@ -1,4 +1,4 @@
-package com.bos.usertaskmanager.controller;
+package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.dto.CreateUserTaskInput;
 import com.bos.usertaskmanager.dto.ResultDto;
@@ -6,44 +6,49 @@ import com.bos.usertaskmanager.dto.TaskFilterInput;
 import com.bos.usertaskmanager.dto.UserTaskOutDto;
 import com.bos.usertaskmanager.repository.TaskMapper;
 import com.bos.usertaskmanager.service.UserTaskService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api")
-public class UserTaskController {
+@Controller
+public class UserTaskResolver {
     private final UserTaskService userTaskService;
 
-    public UserTaskController(UserTaskService userTaskService, TaskMapper taskMapper) {
+    public UserTaskResolver(UserTaskService userTaskService, TaskMapper taskMapper) {
         this.userTaskService = userTaskService;
     }
 
-    @GetMapping("/userTask")
-    public UserTaskOutDto getUserTaskRest(@RequestParam("userTaskId") String userTaskId) {
+    @QueryMapping
+    public UserTaskOutDto getUserTask(@Argument String userTaskId) {
         return userTaskService.getUserTaskById(userTaskId);
     }
 
-    @GetMapping("/userTasks")
-    public List<UserTaskOutDto> getAllUserTasksRest() {
+    @QueryMapping
+    public List<UserTaskOutDto> getAllUserTasks() {
         return userTaskService.getAllUserTasks();
     }
 
-    @PostMapping("/userTasks")
-    public List<UserTaskOutDto> getFilteredUserTasksRest(@RequestBody TaskFilterInput filters) {
+
+    @QueryMapping
+    public List<UserTaskOutDto> getFilteredUserTasks(@Argument TaskFilterInput filters) {
         if(filters != null) {
             filters.sanitize();
         }
         return userTaskService.getFilteredUserTasks(filters);
     }
 
-    @PostMapping("/createUserTask")
-    public String createUserTaskRest(@RequestBody CreateUserTaskInput input) {
+
+    @MutationMapping
+    public String createUserTask(@Argument CreateUserTaskInput input) {
         return userTaskService.createUserTask(input);
     }
 
-    @DeleteMapping("/deleteUserTask/{userTaskId}")
-    public ResultDto deleteUserTaskRest(@PathVariable String userTaskId) {
+
+    @MutationMapping
+    public ResultDto deleteUserTask(@Argument String userTaskId) {
         if(userTaskService.deleteUserTask(userTaskId)){
             return new ResultDto(true, "User Task deleted successfully");
         } else {

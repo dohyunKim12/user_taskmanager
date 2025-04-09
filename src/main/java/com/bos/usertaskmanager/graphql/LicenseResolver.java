@@ -1,33 +1,35 @@
-package com.bos.usertaskmanager.controller;
+package com.bos.usertaskmanager.graphql;
 
 import com.bos.usertaskmanager.dto.LicenseInput;
 import com.bos.usertaskmanager.dto.ResultDto;
 import com.bos.usertaskmanager.model.License;
 import com.bos.usertaskmanager.service.LicenseService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api")
-public class LicenseController {
+@Controller
+public class LicenseResolver {
     private final LicenseService licenseService;
-    public LicenseController(LicenseService licenseService) {
+    public LicenseResolver(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
 
-    @GetMapping("/license")
-    public License getLicenseRest(@RequestParam("licenseId") String licenseId) {
+    @QueryMapping
+    public License getLicense(@Argument String licenseId) {
         return licenseService.getLicenseById(licenseId);
     }
 
-    @GetMapping("/licenses")
-    public List<License> getAllLicensesRest() {
+    @QueryMapping
+    public List<License> getAllLicenses() {
         return licenseService.getAllLicenses();
     }
 
-    @PostMapping("/createLicense")
-    public License createLicenseRest(@RequestBody LicenseInput input) {
+    @MutationMapping
+    public License createLicense(@Argument LicenseInput input) {
         License license = new License();
         license.setLicenseType(input.getLicenseType());
         license.setMaxVal(input.getMaxVal());
@@ -35,8 +37,8 @@ public class LicenseController {
         return licenseService.createLicense(license);
     }
 
-    @PutMapping("/updateLicense")
-    public License updateLicenseRest(@RequestBody LicenseInput input) {
+    @MutationMapping
+    public License updateLicense(@Argument LicenseInput input) {
         License license = new License();
         license.setLicenseId(input.getLicenseId());
         license.setLicenseType(input.getLicenseType());
@@ -45,8 +47,8 @@ public class LicenseController {
         return licenseService.updateLicense(license);
     }
 
-    @DeleteMapping("/deleteLicense/{licenseId}")
-    public ResultDto deleteLicenseByIdRest(@PathVariable String licenseId) {
+    @MutationMapping
+    public ResultDto deleteLicenseById(@Argument String licenseId) {
         if(licenseService.deleteLicense(licenseId)){
             return new ResultDto(true, "License deleted successfully");
         } else {
@@ -54,8 +56,8 @@ public class LicenseController {
         }
     }
 
-    @DeleteMapping("/deleteLicenses")
-    public ResultDto deleteAllLicensesRest() {
+    @MutationMapping
+    public ResultDto deleteAllLicenses() {
         if(licenseService.deleteAllLicenses()){
             return new ResultDto(true, "All licenses deleted successfully");
         } else {
