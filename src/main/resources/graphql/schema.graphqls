@@ -75,6 +75,23 @@ type Result {
     message: String
 }
 
+input CreateUserInput {
+    teamId: String
+    username: String!
+    password: String
+    email: String!
+    role: String
+}
+
+input UpdateUserInput {
+    userId: ID!
+    teamId: String
+    username: String!
+    password: String
+    email: String!
+    role: String
+}
+
 input TaskInput {
     userId: String
     requestedCpu: Float!
@@ -105,14 +122,6 @@ input CreateSystemTaskInput {
     config: String!  # JSON → String
 }
 
-type AddBatchOutput {
-    success: [String]
-    failed: [String]
-    permissionDenied: [String]
-}
-
-
-
 input TaskFilterInput {
     statuses: [String]
     usernames: [String]
@@ -126,6 +135,13 @@ input TaskFilterInput {
     startedTo: String
     endedFrom: String
     endedTo: String
+}
+
+input LicenseInput {
+    licenseId: String
+    licenseType: String
+    maxVal: Int
+    currentVal: Int
 }
 
 # Query types
@@ -146,8 +162,8 @@ type Query {
 # Mutation types
 
 type Mutation {
-    createUser(teamId: String, username: String!, password: String, email: String!, role: String): User
-    updateUser(userId: ID!, teamId: String, username: String, email: String, role: String): User
+    createUser(input: CreateUserInput): User
+    updateUser(input: UpdateUserInput): User
     deleteUserById(userId: ID!): Result
     deleteUserByUsername(username: String!): Result
 
@@ -156,8 +172,8 @@ type Mutation {
     updateTeamLicense(teamId: ID!, licenseTypes: [String]): Result
     deleteTeamById(teamId: ID!): Result
 
-    createLicense(licenseType: String!, maxVal: Int!, currentVal: Int!): License
-    updateLicense(licenseId: ID!, licenseType: String, maxVal: Int, currentVal: Int): License
+    createLicense(input: LicenseInput): License
+    updateLicense(input: LicenseInput): License
     deleteLicenseById(licenseId: ID!): Result
     deleteAllLicenses: Result
 

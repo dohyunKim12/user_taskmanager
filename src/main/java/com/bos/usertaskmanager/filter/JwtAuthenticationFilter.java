@@ -49,12 +49,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractJwt(HttpServletRequest request) {
-        /* When JWT is passed in the Authorization header(by localStorage)
-        String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        */
 
         // Get JWT token from cookies
         Cookie[] cookies = request.getCookies();

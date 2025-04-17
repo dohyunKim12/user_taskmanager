@@ -34,7 +34,7 @@ public interface UserMapper {
     @Update("UPDATE users SET username = #{username} WHERE user_id = #{userId}")
     void updateUsername(User user);
 
-    @Update("UPDATE users SET username = #{username}, team_id = #{teamId}, email = #{email}, role = #{role} WHERE user_id = #{userId}")
+    @Update("UPDATE users SET username = #{username}, team_id = #{teamId}, email = #{email}, role = #{role}, password = #{password} WHERE user_id = #{userId}")
     void updateUser(User user);
 
     @Delete("DELETE FROM users where username = #{username}")

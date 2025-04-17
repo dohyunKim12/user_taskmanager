@@ -8,6 +8,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+/**
+ * Global ControllerAdvice {@link ControllerAdvice} class for send attribute to client.
+ *
+ * {@link ModelAttribute} call when controller method is called.
+ *
+ * This class is used to add common attributes to the model for all controllers
+ * (May cause performance issues if abused, specified model attributes are added to the model for specific controller methods)
+ *
+ * @author dohyunkim
+ * @see org.springframework.web.bind.annotation.ModelAttribute
+ */
 @ControllerAdvice
 public class GlobalControllerAdvice {
     @ModelAttribute("isLoggedIn")
