@@ -7,6 +7,18 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+
+/**
+ * Global exception handler for the application {@link org.springframework.web.bind.annotation.ControllerAdvice}.
+ *
+ * This class handles various exceptions that may occur during the execution of the application.
+ * It provides a centralized way to handle exceptions and return appropriate HTTP responses.
+ *
+ * @author dohyunkim
+ * @see org.springframework.web.bind.annotation.ControllerAdvice
+ */
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

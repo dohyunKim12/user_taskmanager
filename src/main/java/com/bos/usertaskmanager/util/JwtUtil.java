@@ -15,13 +15,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * JwtUtil is a utility class for creating and validating JSON Web Tokens (JWT).
+ * It provides methods to create a JWT token, validate it, and extract authentication information from it.
+ * The class uses the io.jsonwebtoken library for JWT operations.
+ * <p>
+ * The secret key used for signing the tokens should be kept secure and not hard-coded in production code.
+ * The validity period of the token is set to 1 hour (3600000 milliseconds).
+ *
+ * @author dohyun.kim
+ */
+
 @Component
 public class JwtUtil {
 
-    private final String secretKey = "mySecretKeyMySecretKeyMySecretKey"; // 최소 256비트 이상의 시크릿 사용 권장
-    private final long validityInMilliseconds = 3600000L; // 1시간
+    private final String secretKey = "mySecretKeyMySecretKeyMySecretKey"; // Should be at least 256 bits
+    private final long validityInMilliseconds = 3600000L; // 1Hour
 
-    // JWT 토큰 생성
+    // Create JWT Token
     public String createToken(Authentication auth) {
         Claims claims = Jwts.claims().setSubject(auth.getName());
         claims.put("roles", auth.getAuthorities().stream()
@@ -38,7 +49,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // JWT 토큰 검증
+    // Validate JWT Token
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parserBuilder()
@@ -51,7 +62,7 @@ public class JwtUtil {
         }
     }
 
-    // JWT에서 인증정보 조회
+    // Get Authentication from JWT Token
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
