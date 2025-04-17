@@ -3,6 +3,7 @@ package com.bos.usertaskmanager.service;
 import com.bos.usertaskmanager.dto.CreateUserTaskInput;
 import com.bos.usertaskmanager.dto.TaskFilterInput;
 import com.bos.usertaskmanager.dto.UserTaskOutDto;
+import com.bos.usertaskmanager.exception.InvalidTaskInputException;
 import com.bos.usertaskmanager.model.Task;
 import com.bos.usertaskmanager.model.UserTask;
 import com.bos.usertaskmanager.repository.TaskMapper;
@@ -13,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -62,6 +65,16 @@ public class UserTaskService {
     }
 
     public String createUserTask(CreateUserTaskInput input) {
+        if(input == null || input.getTask() == null) {
+            throw new InvalidTaskInputException("Task input or details cannot be null");
+        }
+
+        if(input.getDirectory() == null || input.getDirectory().isEmpty()) {
+            Map<String, Object> details = new HashMap<>();
+            details.put("missingField", "directory");
+            throw new InvalidTaskInputException("Directory field is missing.", details);
+        }
+
         String taskId = taskMapper.getNextTaskId();
         String userTaskId = userTaskMapper.getNextUserTaskId();
 
